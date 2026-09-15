@@ -3,55 +3,75 @@ import { BUSINESS } from '../lib/site'
 
 const FOOTER_LINKS = ['Legal', 'Privacy', 'Credits'] as const
 
-/**
- * Section 8 — Footer. stone-900 band, stacked on mobile and a single row from
- * the desktop breakpoint up: wordmark + copyright on the left, utility links on
- * the right.
- */
+/** Section 9 — Footer. Stone-900 band, stacked on mobile, one row on desktop. */
 export default function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="bg-stone-900 px-6 py-10 text-stone-400 sm:px-10 md:px-14">
-      <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
-        <div className="flex flex-col gap-3">
-          <Wordmark className="text-stone-100" />
-          <p className="text-[12px] leading-relaxed">
-            © {year} {BUSINESS.name} · {BUSINESS.locality}
-          </p>
-          <div className="flex flex-wrap items-center gap-6 text-[11px] uppercase tracking-[0.24em]">
-            <a
-              href={BUSINESS.phoneHref}
-              className="transition-colors duration-500 hover:text-stone-100"
-            >
-              {BUSINESS.phoneDisplay}
-            </a>
+    <footer className="on-ink bg-stone-900 px-6 py-12 text-stone-400 sm:px-10 md:px-14">
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-10">
+        <div className="flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
+          <div>
+            <p className="display text-[clamp(38px,7vw,92px)] text-stone-100">
+              Let&apos;s build
+              <br />
+              <span className="accent">something</span>
+            </p>
             <a
               href={BUSINESS.whatsapp}
               target="_blank"
               rel="noreferrer"
-              className="flex items-center gap-2 transition-colors duration-500 hover:text-stone-100"
+              className="btn on-ink mt-8 border-stone-100 text-stone-100 hover:bg-stone-100 hover:text-stone-900"
             >
-              <iconify-icon icon="solar:chat-round-linear" width="15" height="15" />
-              WhatsApp
+              Book a consultation
+              <span className="ar" aria-hidden="true">
+                →
+              </span>
             </a>
+          </div>
+
+          <div className="grid gap-8 sm:grid-cols-2 md:max-w-md md:gap-12">
+            <div>
+              <p className="lbl text-stone-500">Studio</p>
+              <p className="copy mt-3 text-[13px] text-stone-400">
+                {BUSINESS.addressLines.join(', ')}
+              </p>
+            </div>
+            <div>
+              <p className="lbl text-stone-500">Enquiries</p>
+              <a
+                href={BUSINESS.phoneHref}
+                className="u num mt-3 inline-block text-[13px] text-stone-300"
+              >
+                {BUSINESS.phoneDisplay}
+              </a>
+              <p className="lbl mt-3 text-stone-500">{BUSINESS.hours}</p>
+            </div>
           </div>
         </div>
 
-        <nav
-          aria-label="Legal"
-          className="flex items-center gap-6 md:gap-8"
-        >
-          {FOOTER_LINKS.map((link) => (
-            <a
-              key={link}
-              href="#top"
-              className="text-[11px] uppercase tracking-[0.24em] text-stone-400 transition-colors duration-500 hover:text-stone-100"
-            >
-              {link}
+        <hr className="h-px w-full border-0 bg-white/10" />
+
+        <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
+          <div className="flex flex-col gap-3">
+            <Wordmark className="text-stone-100" />
+            <p className="lbl text-stone-500">
+              © {year} {BUSINESS.name} · {BUSINESS.locality}
+            </p>
+          </div>
+
+          <nav aria-label="Legal" className="flex items-center gap-6 md:gap-8">
+            {FOOTER_LINKS.map((link) => (
+              <a key={link} href="#top" className="lbl text-stone-500 hover:text-stone-100">
+                {link}
+              </a>
+            ))}
+            <a href="#top" className="lbl flex items-center gap-2 text-stone-500 hover:text-stone-100">
+              Back to top
+              <iconify-icon icon="solar:alt-arrow-up-linear" width="14" height="14" />
             </a>
-          ))}
-        </nav>
+          </nav>
+        </div>
       </div>
     </footer>
   )

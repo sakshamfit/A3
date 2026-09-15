@@ -1,106 +1,184 @@
-import Reveal from '../components/Reveal'
+import { gsap, SplitText, useGsap } from '../lib/gsap'
 import { BUSINESS, IMAGES } from '../lib/site'
 
+const HERO_FACTS = [
+  { label: 'Studio', value: 'Azeet Plaza, Commercial Road' },
+  { label: 'Locality', value: 'Taramandal, Gorakhpur 273001' },
+  { label: 'Hours', value: 'Daily · 10 am – 10 pm' },
+]
+
 /**
- * Section 2 — Hero.
+ * Section 1 — Hero.
  *
- * Layers: image (absolute inset-0, object-bottom, opacity-70) → gradient
- * overlay → content (relative z-10). The image sits over a near-black section
- * background; the serif italic span carries the studio's signature word.
+ * Scroll choreography (GSAP + ScrollTrigger):
+ *   · an entrance timeline lifts the headline out of line masks and settles the
+ *     media from scale 1.18
+ *   · on scroll the copy drifts up and fades while the image parallaxes and
+ *     darkens, so the hero dissolves into the next band
  */
 export default function Hero() {
+  const scope = useGsap<HTMLElement>((el, { reduced }) => {
+    const heading = el.querySelector<HTMLElement>('[data-hero-heading]')
+    const copy = el.querySelector<HTMLElement>('[data-hero-copy]')
+    const media = el.querySelector<HTMLElement>('[data-hero-media]')
+    const overlay = el.querySelector<HTMLElement>('[data-hero-overlay]')
+
+    if (!heading || !copy || !media || !overlay) return
+
+    const showEverything = () => {
+      gsap.set(el.querySelectorAll('[data-reveal]'), { opacity: 1, y: 0 })
+      gsap.set([heading, media], { opacity: 1 })
+      gsap.set(media, { scale: 1 })
+    }
+
+    if (reduced) {
+      showEverything()
+      return
+    }
+
+    /* Scrub: copy lifts and fades, image parallaxes and the overlay deepens */
+    gsap.to(copy, {
+      y: -110,
+      opacity: 0,
+      ease: 'none',
+      scrollTrigger: { trigger: el, start: 'top top', end: 'bottom top', scrub: true },
+    })
+    gsap.to(media.querySelector('img'), {
+      yPercent: 14,
+      scale: 1.06,
+      ease: 'none',
+      scrollTrigger: { trigger: el, start: 'top top', end: 'bottom top', scrub: true },
+    })
+    gsap.to(overlay, {
+      opacity: 0.75,
+      ease: 'none',
+      scrollTrigger: { trigger: el, start: 'top top', end: 'bottom top', scrub: true },
+    })
+    gsap.to('[data-hero-rail]', {
+      y: 40,
+      opacity: 0,
+      ease: 'none',
+      scrollTrigger: { trigger: el, start: 'top top', end: 'bottom top', scrub: true },
+    })
+
+    try {
+      const tl = gsap.timeline({ defaults: { ease: 'power3.out' } })
+      tl.fromTo(
+        media,
+        { opacity: 0, scale: 1.14 },
+        { opacity: 1, scale: 1, duration: 1.7, ease: 'power2.out' },
+      ).to(
+        el.querySelectorAll('[data-reveal]'),
+        { opacity: 1, y: 0, duration: 0.9, stagger: 0.08 },
+        0.45,
+      )
+
+      /* autoSplit re-splits after the fonts swap, so the line masks always
+         match the rendered line boxes. */
+      SplitText.create(heading, {
+        type: 'lines',
+        mask: 'lines',
+        autoSplit: true,
+        onSplit: (self) => {
+          gsap.set(heading, { opacity: 1 })
+          return gsap.from(self.lines, {
+            yPercent: 115,
+            duration: 1.15,
+            stagger: 0.09,
+            ease: 'power4.out',
+            delay: 0.15,
+          })
+        },
+      })
+
+      /* Safety net: if the split produced no line masks (no layout yet, or a
+         browser that measures oddly), make sure the headline is not left
+         hidden by the `data-reveal="mask"` rule. */
+      if (!heading.querySelector('[class*="-mask"]')) {
+        gsap.set(heading, { opacity: 1 })
+      }
+    } catch {
+      console.warn('A3: hero entrance animation unavailable — content shown as-is.')
+      showEverything()
+    }
+  }, [])
+
   return (
     <section
+      ref={scope}
       id="top"
-      className="relative flex min-h-[95vh] flex-col justify-end overflow-hidden bg-obsidian"
+      className="relative flex min-h-[95vh] flex-col justify-end overflow-hidden bg-inkdeep"
     >
-      <img
-        src={IMAGES.hero}
-        alt="Sunlit living room with layered natural materials"
-        className="absolute inset-0 h-full w-full object-cover object-bottom opacity-70"
-        decoding="async"
-      />
-      <div className="absolute inset-0 bg-gradient-to-b from-obsidian/85 via-obsidian/45 to-obsidian" />
-      <div className="absolute inset-0 bg-obsidian/20" />
+      {/* Media layers: image → gradient → content */}
+      <div data-hero-media className="absolute inset-0">
+        <img
+          data-hero-image
+          src={IMAGES.hero}
+          alt="Double-height living room at golden hour with oak slat wall and travertine floor"
+          className="h-full w-full object-cover object-bottom opacity-70"
+          decoding="async"
+        />
+      </div>
+      <div className="absolute inset-0 bg-gradient-to-b from-inkdeep/85 via-inkdeep/40 to-inkdeep" />
+      <div data-hero-overlay className="absolute inset-0 bg-inkdeep/10" />
 
-      {/* Content */}
-      <div className="relative z-10 px-6 pb-12 pt-32 sm:px-10 sm:pb-16 md:px-14 md:pt-40">
-        <Reveal className="flex flex-wrap items-center gap-x-6 gap-y-3 text-white/70">
-          <span className="label flex items-center gap-2">
-            <iconify-icon icon="solar:star-bold" width="13" height="13" class="text-white/70" />
-            {BUSINESS.rating} · {BUSINESS.reviewCount} Google reviews
-          </span>
-          <span className="hidden h-3 w-px bg-white/25 sm:block" />
-          <span className="label">Interior design &amp; build</span>
-          <span className="hidden h-3 w-px bg-white/25 sm:block" />
-          <span className="label">{BUSINESS.locality}</span>
-        </Reveal>
+      <div className="relative z-10 flex flex-1 flex-col justify-end">
+        <div className="wrap pt-32 md:pt-40">
+          <div data-reveal="fade" className="flex flex-wrap items-center gap-x-6 gap-y-3 text-chalk/70">
+            <span className="lbl flex items-center gap-2">
+              <iconify-icon icon="solar:star-bold" width="12" height="12" class="text-chalk/70" />
+              {BUSINESS.rating} · {BUSINESS.reviewCount} Google reviews
+            </span>
+            <span className="hidden h-3 w-px bg-chalk/25 sm:block" />
+            <span className="lbl">Interior design &amp; build</span>
+            <span className="hidden h-3 w-px bg-chalk/25 sm:block" />
+            <span className="lbl">{BUSINESS.locality}</span>
+          </div>
 
-        <Reveal delay={80}>
-          <h1 className="mt-8 max-w-5xl text-5xl font-light leading-[0.95] tracking-tighter text-white sm:text-6xl md:text-7xl lg:text-8xl">
-            Interiors
-            <br />
-            <span className="font-serif italic font-light">sculpted</span> around
-            <br />
-            how you live.
+          <h1 data-hero-heading data-reveal="mask" className="display mt-8 max-w-[18ch] text-bone">
+            Interiors <span className="accent">sculpted</span> around how you live
           </h1>
-        </Reveal>
-
-        <Reveal delay={160} className="mt-10 flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
-          <p className="max-w-md text-sm leading-relaxed text-white/65 md:text-[15px]">
-            {BUSINESS.description} A studio of designers, an architect and
-            craftsmen working out of Azeet Plaza, Gorakhpur — for homes and
-            businesses across Uttar Pradesh.
+          <p className="mt-6 max-w-[46ch] font-serif text-[clamp(16px,1.6vw,22px)] italic leading-snug text-chalk/70">
+            {BUSINESS.name}
           </p>
-          <a
-            href={BUSINESS.whatsapp}
-            target="_blank"
-            rel="noreferrer"
-            className="group inline-flex shrink-0 items-center gap-3 text-[11px] font-medium uppercase tracking-[0.24em] text-white"
-          >
-            <span className="link-underline">Book a consultation</span>
-            <iconify-icon
-              icon="solar:arrow-right-linear"
-              width="18"
-              height="18"
-              class="transition-transform duration-500 ease-smooth group-hover:translate-x-1"
-            />
-          </a>
-        </Reveal>
+        </div>
+
+        <div data-hero-copy className="wrap mt-12 flex flex-col gap-8 pb-14 sm:flex-row sm:items-end sm:justify-between">
+          <p data-reveal className="lede text-chalk/70">
+            {BUSINESS.description} Designed, drawn and built by one studio — for homes
+            and businesses across Gorakhpur and nearby Uttar Pradesh.
+          </p>
+          <div data-reveal className="flex flex-wrap items-center gap-3">
+            <a
+              href={BUSINESS.whatsapp}
+              target="_blank"
+              rel="noreferrer"
+              className="btn on-ink"
+            >
+              Book a consultation
+              <span className="ar" aria-hidden="true">
+                →
+              </span>
+            </a>
+            <a href="#projects" className="btn btn--ghost on-ink">
+              View the collection
+            </a>
+          </div>
+        </div>
       </div>
 
-      {/* Footer of hero */}
-      <div className="relative z-10 border-t border-white/20">
-        <div className="flex flex-col gap-6 px-6 py-6 sm:px-10 md:flex-row md:items-center md:justify-between md:px-14">
-          <p className="max-w-2xl text-[13px] leading-relaxed text-white/55">
-            Residential interiors, retail fit-outs and architecture — drawn,
-            built and finished by one studio. Free design consultation, seven
-            days a week until 10 pm.
-          </p>
-          <div className="flex flex-wrap items-center gap-6 md:gap-8">
-            <a
-              href="#projects"
-              className="group inline-flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.24em] text-white"
-            >
-              <span className="link-underline">View the collection</span>
-              <iconify-icon
-                icon="solar:alt-arrow-down-linear"
-                width="16"
-                height="16"
-                class="transition-transform duration-500 ease-smooth group-hover:translate-y-0.5"
-              />
-            </a>
-            <a
-              href={BUSINESS.phoneHref}
-              className="group inline-flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.24em] text-white"
-            >
-              <span className="link-underline">{BUSINESS.phoneDisplay}</span>
-              <iconify-icon
-                icon="solar:phone-calling-linear"
-                width="16"
-                height="16"
-                class="transition-transform duration-500 ease-smooth group-hover:translate-x-0.5"
-              />
+      {/* Hero rail */}
+      <div data-hero-rail className="relative z-10 border-t border-white/20">
+        <div className="wrap grid grid-cols-2 gap-6 py-6 md:grid-cols-4">
+          {HERO_FACTS.map((fact) => (
+            <div key={fact.label}>
+              <p className="lbl text-chalk/40">{fact.label}</p>
+              <p className="copy mt-2 text-[13px] text-chalk/75">{fact.value}</p>
+            </div>
+          ))}
+          <div className="flex items-center justify-between gap-4 md:justify-end">
+            <a href={BUSINESS.phoneHref} className="lbl u num text-chalk/80">
+              {BUSINESS.phoneDisplay}
             </a>
           </div>
         </div>

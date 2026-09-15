@@ -9,6 +9,7 @@
 import { addIcon } from 'iconify-icon'
 
 import altArrowDownLinear from '@iconify-icons/solar/alt-arrow-down-linear'
+import altArrowUpLinear from '@iconify-icons/solar/alt-arrow-up-linear'
 import arrowLeftLinear from '@iconify-icons/solar/arrow-left-linear'
 import arrowRightLinear from '@iconify-icons/solar/arrow-right-linear'
 import bedLinear from '@iconify-icons/solar/bed-linear'
@@ -20,6 +21,7 @@ import cupStarLinear from '@iconify-icons/solar/cup-star-linear'
 import galleryLinear from '@iconify-icons/solar/gallery-linear'
 import hamburgerMenuLinear from '@iconify-icons/solar/hamburger-menu-linear'
 import leafLinear from '@iconify-icons/solar/leaf-linear'
+import layersMinimalisticLinear from '@iconify-icons/solar/layers-minimalistic-linear'
 import letterLinear from '@iconify-icons/solar/letter-linear'
 import lockKeyholeLinear from '@iconify-icons/solar/lock-keyhole-linear'
 import mapPointLinear from '@iconify-icons/solar/map-point-linear'
@@ -32,6 +34,7 @@ import tagPriceLinear from '@iconify-icons/solar/tag-price-linear'
 
 const REGISTRY = {
   'solar:alt-arrow-down-linear': altArrowDownLinear,
+  'solar:alt-arrow-up-linear': altArrowUpLinear,
   'solar:arrow-left-linear': arrowLeftLinear,
   'solar:arrow-right-linear': arrowRightLinear,
   'solar:bed-linear': bedLinear,
@@ -43,6 +46,7 @@ const REGISTRY = {
   'solar:gallery-linear': galleryLinear,
   'solar:hamburger-menu-linear': hamburgerMenuLinear,
   'solar:leaf-linear': leafLinear,
+  'solar:layers-minimalistic-linear': layersMinimalisticLinear,
   'solar:letter-linear': letterLinear,
   'solar:lock-keyhole-linear': lockKeyholeLinear,
   'solar:map-point-linear': mapPointLinear,

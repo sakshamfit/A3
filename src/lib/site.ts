@@ -1,7 +1,9 @@
 /**
  * A3 Interior Designer & Builder — studio content.
- * Business details, review quotes and product lines are taken from the studio's
- * Google Business Profile; imagery follows the source asset map.
+ *
+ * Business details and review quotes come from the studio's Google Business
+ * Profile. All interiors imagery is generated for this build and served
+ * locally from /public/images as WebP.
  */
 
 export const BUSINESS = {
@@ -11,8 +13,6 @@ export const BUSINESS = {
   category: 'Interior designer in Gorakhpur, Uttar Pradesh',
   description:
     'Interior design firm, also featuring an architect, helping with design needs for residential and commercial spaces.',
-  address:
-    'Second Floor, Commercial Road, Azeet Plaza, Buddha Vihar, Taramandal, Gorakhpur, Uttar Pradesh 273001',
   addressLines: [
     'Second Floor, Azeet Plaza',
     'Commercial Road, Buddha Vihar, Taramandal',
@@ -29,28 +29,35 @@ export const BUSINESS = {
   reviewCount: 174,
   hours: 'Open · Closes 10 pm',
   hoursNote: 'Mon — Sun · 10:00 am – 10:00 pm',
+  founded: '2016',
 } as const
 
-/** Asset map — exact sources from the reference build. */
+/** Locally generated interiors, served as WebP. */
 export const IMAGES = {
-  hero: 'https://images.unsplash.com/photo-1600607686527-6fb886090705?q=80&w=2700&auto=format&fit=crop',
-  philosophy:
-    'https://images.unsplash.com/photo-1631679706909-1844bbd07221?q=80&w=1992&auto=format&fit=crop',
-  residenceObsidian:
-    'https://images.unsplash.com/photo-1600585154526-990dced4db0d?q=80&w=2700&auto=format&fit=crop',
-  residenceGarden:
-    'https://images.unsplash.com/photo-1600607686527-6fb886090705?q=80&w=2700&auto=format&fit=crop',
-  gallery1:
-    'https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/917d6f93-fb36-439a-8c48-884b67b35381_1600w.jpg',
-  gallery2:
-    'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?q=80&w=2000&auto=format&fit=crop',
-  gallery3:
-    'https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/4734259a-bad7-422f-981e-ce01e79184f2_1600w.jpg',
-  gallery4:
-    'https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/c543a9e1-f226-4ced-80b0-feb8445a75b9_1600w.jpg',
+  hero: '/images/hero-living.webp',
+  philosophy: '/images/philosophy-detail.webp',
+  residenceObsidian: '/images/res-obsidian.webp',
+  residenceGarden: '/images/res-garden.webp',
+  residenceTerracotta: '/images/res-terracotta.webp',
+  residenceStudio: '/images/res-studio.webp',
+  galleryLiving: '/images/gal-living.webp',
+  galleryLounge: '/images/gal-lounge.webp',
+  galleryKitchen: '/images/gal-kitchen.webp',
+  galleryBedroom: '/images/gal-bedroom.webp',
 } as const
 
-/** Philosophy section — sticky metrics column. */
+export const MARQUEE = [
+  'Interior design',
+  'Modular kitchens',
+  'Wardrobes & storage',
+  'Residential decorators',
+  'Architecture',
+  'Turnkey fit-outs',
+  'Commercial interiors',
+  'Site supervision',
+] as const
+
+/** Philosophy — sticky metrics rail. */
 export const METRICS = [
   {
     icon: 'solar:cup-star-linear',
@@ -84,7 +91,6 @@ export type Residence = {
   image: string
 }
 
-/** Featured residences — the availability list. */
 export const RESIDENCES: Residence[] = [
   {
     index: '01',
@@ -104,7 +110,7 @@ export const RESIDENCES: Residence[] = [
     location: 'Buddha Vihar, Gorakhpur',
     year: '2025',
     summary:
-      'Architecture and interiors delivered together — double-height living, a shaded courtyard, and a staircase cast in place.',
+      'Architecture and interiors delivered together — a shaded courtyard, fluted plaster headboards and brass fittings throughout.',
     area: '3,100 sq ft',
     config: '4 BHK Duplex',
     price: 'On request',
@@ -120,7 +126,7 @@ export const RESIDENCES: Residence[] = [
     area: '2,850 sq ft',
     config: '4 BHK',
     price: 'On request',
-    image: IMAGES.gallery1,
+    image: IMAGES.residenceTerracotta,
   },
   {
     index: '04',
@@ -128,61 +134,81 @@ export const RESIDENCES: Residence[] = [
     location: 'Golghar, Gorakhpur',
     year: '2024',
     summary:
-      'A calm commercial fit-out — acoustic ceilings, linear lighting and furniture detailed for a team of thirty.',
+      'A calm commercial fit-out — acoustic ceilings, linear lighting and oak workstations detailed for a team of thirty.',
     area: '1,650 sq ft',
     config: 'Workspace',
     price: 'On request',
-    image: IMAGES.gallery3,
+    image: IMAGES.residenceStudio,
   },
 ]
 
-/** Highlights — dark band. */
-export const HIGHLIGHTS = [
+/** Material board — drives both the DOM swatches and the WebGL scene. */
+export type Material = {
+  name: string
+  finish: string
+  swatch: string
+  note: string
+}
+
+export const MATERIALS: Material[] = [
+  { name: 'Travertine', finish: 'Honed', swatch: '#d9cfbd', note: 'Counters, ledges, thresholds' },
+  { name: 'Smoked Oak', finish: 'Fluted', swatch: '#9a6b3f', note: 'Wardrobes, panelling, joinery' },
+  { name: 'Black Stone', finish: 'Leathered', swatch: '#2b2b2b', note: 'Kitchen islands, wet areas' },
+  { name: 'Limewash', finish: 'Burnished', swatch: '#e8e2d4', note: 'Walls, arches, ceilings' },
+]
+
+/** Pinned shell → finished transformation. */
+export const PROCESS = [
   {
-    icon: 'solar:city-linear',
-    title: 'Homes & Workspaces',
-    copy: 'Residential interiors, retail and commercial fit-outs across Gorakhpur and the nearby cities of Uttar Pradesh.',
+    step: '01',
+    title: 'Survey & brief',
+    copy: 'We measure every wall, note the way light moves through the day and agree the budget before a single line is drawn.',
   },
   {
-    icon: 'solar:leaf-linear',
-    title: 'Design To Delivery',
-    copy: 'An in-house team of designers, an architect and craftsmen — one point of contact from first sketch to handover.',
+    step: '02',
+    title: 'Drawings & 3D',
+    copy: 'Layouts, elevations and a walkthrough our carpenters can actually build from — approved by you room by room.',
   },
   {
-    icon: 'solar:lock-keyhole-linear',
-    title: 'Built To The Estimate',
-    copy: 'Transparent estimates, a fixed scope of work, and modular kitchens and wardrobes finished to last.',
+    step: '03',
+    title: 'Joinery & site work',
+    copy: 'Shutters, frames and storage are made in our workshop while electricians and plasterers finish on site.',
+  },
+  {
+    step: '04',
+    title: 'Styling & handover',
+    copy: 'Hardware, lighting, textiles and a full clean before the keys change hands — then a check-in after the monsoon.',
   },
 ] as const
 
 /** Gallery mosaic. */
 export const GALLERY = [
   {
-    src: IMAGES.gallery1,
-    alt: 'Living room with layered lighting and an oak media wall',
+    src: IMAGES.galleryLiving,
+    alt: 'Living room with oak battens wrapping a lit media wall',
     caption: 'Living room',
     project: 'Terracotta Villa',
     span: 'tall',
   },
   {
-    src: IMAGES.gallery2,
-    alt: 'Lounge seating in warm neutral tones',
+    src: IMAGES.galleryLounge,
+    alt: 'Lounge alcove with two curved armchairs and an arched mirror',
     caption: 'Lounge',
     project: 'Obsidian Loft',
     span: 'wide',
   },
   {
-    src: IMAGES.gallery3,
-    alt: 'Master bedroom with a fluted headboard wall',
-    caption: 'Master bedroom',
-    project: 'Garden Duplex',
+    src: IMAGES.galleryKitchen,
+    alt: 'Modular kitchen island in pale stone with two oak stools',
+    caption: 'Modular kitchen',
+    project: 'Studio Bone',
     span: 'standard',
   },
   {
-    src: IMAGES.gallery4,
-    alt: 'Modular kitchen with a stone island and tall units',
-    caption: 'Modular kitchen',
-    project: 'Studio Bone',
+    src: IMAGES.galleryBedroom,
+    alt: 'Master bedroom with a fluted plaster headboard wall',
+    caption: 'Master bedroom',
+    project: 'Garden Duplex',
     span: 'standard',
   },
 ] as const
@@ -196,8 +222,7 @@ export type Review = {
 /** Review quotes, verbatim from the Google Business Profile. */
 export const REVIEWS: Review[] = [
   {
-    quote:
-      'Good looking for my design in my home very nice work thank you for company',
+    quote: 'Good looking for my design in my home very nice work thank you for company',
     highlights: ['home', 'work', 'company'],
     meta: 'Google review',
   },
@@ -210,6 +235,12 @@ export const REVIEWS: Review[] = [
     quote: 'He provides interior designing service in gorakhpur, and nearby city.',
     highlights: ['designing service'],
     meta: 'Google review',
+  },
+  {
+    quote:
+      'A3 interior designer is leading the best architect and top interior designers in Gorakhpur, working with the aim of creating a new way of furnishing.',
+    highlights: ['architect', 'top interior designers'],
+    meta: 'From the studio on Google',
   },
 ]
 
