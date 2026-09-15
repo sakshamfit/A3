@@ -4,14 +4,18 @@ export default {
   theme: {
     extend: {
       colors: {
-        /* Bone / off-white page background — exact value from source */
-        bone: '#FDFBF9',
+        /* Page background — minimal blush pink */
+        bone: '#FAEEEF',
+        /* Deeper pink surface: cards, tinted bands, image placeholders */
+        blush: '#F6E8E9',
+        /* Hover surface for list rows */
+        shell: '#F4E2E4',
+        /* Muted rose accent, used sparingly */
+        rose: '#C98B92',
         /* Primary text */
         ink: '#1a1a1a',
         /* Dark section background */
         inkdeep: '#111111',
-        /* Hover surface for list rows */
-        shell: '#F9F9F7',
         /* Dark section body copy */
         chalk: '#f2f2f2',
       },

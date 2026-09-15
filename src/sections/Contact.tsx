@@ -77,22 +77,22 @@ export default function Contact() {
   }
 
   return (
-    <section ref={scope} id="contact" className="band bg-stone-100">
-      <div className="wrap grid grid-cols-1 gap-16 md:grid-cols-2 md:gap-14">
+    <section ref={scope} id="contact" className="band bg-blush">
+      <div className="wrap grid grid-cols-1 gap-12 md:grid-cols-2 md:gap-10">
         {/* Studio details */}
         <div>
           <p data-reveal className="lbl text-ink/40">
             Contact
           </p>
-          <h2 data-reveal className="headline mt-6 max-w-[18ch] text-ink">
+          <h2 data-reveal className="headline mt-4 max-w-[18ch] text-ink">
             Come see the <span className="accent">studio</span>
           </h2>
-          <p data-reveal className="lede mt-6 text-ink/60">
+          <p data-reveal className="lede mt-4 text-ink/60">
             {BUSINESS.description} Walk in for a free consultation, bring your floor plan — or
             just your Pinterest board.
           </p>
 
-          <div className="mt-12 space-y-8">
+          <div className="mt-8 space-y-6">
             <div data-reveal className="flex gap-4">
               <iconify-icon
                 icon="solar:map-point-linear"
@@ -102,7 +102,7 @@ export default function Contact() {
               />
               <div>
                 <p className="lbl text-ink/40">Address</p>
-                <p className="copy mt-3 text-[15px] text-ink/70">
+                <p className="copy mt-2 text-[14.5px] text-ink/70">
                   {BUSINESS.addressLines.map((line) => (
                     <span key={line} className="block">
                       {line}
@@ -160,7 +160,7 @@ export default function Contact() {
               </div>
             </div>
 
-            <div data-reveal className="border-t border-ink/10 pt-8">
+            <div data-reveal className="border-t border-ink/10 pt-7">
               <p className="lbl text-ink/40">Services</p>
               <ul className="mt-4 flex flex-wrap gap-2">
                 {SERVICES.map((service) => (
@@ -177,8 +177,8 @@ export default function Contact() {
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-8">
-          <div className="grid gap-8 sm:grid-cols-2">
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid gap-6 sm:grid-cols-2">
             <div data-field>
               <label htmlFor="name" className="lbl block text-ink/40">
                 Name
@@ -192,7 +192,7 @@ export default function Contact() {
                 value={form.name}
                 onChange={update('name')}
                 placeholder="Your full name"
-                className="field mt-3"
+                className="field mt-2.5"
               />
             </div>
             <div data-field>
@@ -213,7 +213,7 @@ export default function Contact() {
             </div>
           </div>
 
-          <div className="grid gap-8 sm:grid-cols-2">
+          <div className="grid gap-6 sm:grid-cols-2">
             <div data-field className="relative">
               <label htmlFor="type" className="lbl block text-ink/40">
                 Project type
@@ -223,7 +223,7 @@ export default function Contact() {
                 name="type"
                 value={form.type}
                 onChange={update('type')}
-                className="field mt-3 appearance-none pr-8"
+                className="field mt-2.5 appearance-none pr-8"
               >
                 {PROJECT_TYPES.map((type) => (
                   <option key={type} value={type}>
@@ -265,7 +265,7 @@ export default function Contact() {
               value={form.message}
               onChange={update('message')}
               placeholder="Rooms, timeline, and anything you already love."
-              className="field mt-3 resize-none"
+              className="field mt-2.5 resize-none"
             />
           </div>
 

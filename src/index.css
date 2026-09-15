@@ -9,28 +9,31 @@
      · clamp() type scale, ch-based measure (46ch lede / 52ch copy)
      · .lbl micro labels at .2em tracking · .num tabular figures
      · underline-wipe links, tactile buttons, grayscale imagery
-   Palette stays A3: bone #FDFBF9, ink #1a1a1a, dark bands #111111.
+   Palette: blush-pink page #FAEEEF, ink #1a1a1a, dark bands #111111.
    ============================================================================ */
 
 :root {
-  --bone: #fdfbf9;
+  --bone: #faeeef;
+  --blush: #f6e8e9;
+  --shell: #f4e2e4;
+  --rose: #c98b92;
   --ink: #1a1a1a;
   --ink-deep: #111111;
-  --mid: #8a8781;
-  --line: rgba(26, 26, 26, 0.14);
+  --mid: #8a7c7d;
+  --line: rgba(26, 26, 26, 0.13);
   --line-d: rgba(253, 251, 249, 0.18);
-  --shell: #f9f9f7;
-  --stone: #e7e4de;
-  --nav-h: 72px;
+  --stone: #f0dcde;
+  --nav-h: 64px;
   --gut: clamp(18px, 4.2vw, 44px);
   --max: 1440px;
-  --pad-y: clamp(56px, 8vw, 128px);
+  /* Vertical rhythm — tight on purpose, so no band has dead space. */
+  --pad-y: clamp(44px, 5.2vw, 84px);
   --ease: cubic-bezier(0.19, 1, 0.22, 1);
 }
 
 @media (min-width: 900px) {
   :root {
-    --nav-h: 88px;
+    --nav-h: 76px;
   }
 }
 
@@ -123,7 +126,7 @@
     outline-color: var(--bone);
   }
 
-  /* Slim, bone-toned scrollbar */
+  /* Slim, blush-toned scrollbar */
   ::-webkit-scrollbar {
     width: 10px;
     height: 10px;
@@ -132,12 +135,12 @@
     background: var(--bone);
   }
   ::-webkit-scrollbar-thumb {
-    background: #d6d3d1;
+    background: #dcbfc3;
     border: 2px solid var(--bone);
     border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #a8a29e;
+    background: var(--rose);
   }
 }
 
@@ -278,7 +281,7 @@
     justify-content: center;
     gap: 10px;
     min-height: 44px;
-    padding: 14px clamp(18px, 4vw, 30px);
+    padding: 13px clamp(16px, 3.4vw, 26px);
     background: var(--bg);
     color: var(--fg);
     border: 1.5px solid var(--bd);
@@ -354,13 +357,13 @@
   }
 
   .icon-btn {
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
+    width: 40px;
+    height: 40px;
+    min-width: 40px;
     display: grid;
     place-items: center;
     border: 1.5px solid var(--line);
-    background: rgba(253, 251, 249, 0.82);
+    background: rgba(250, 238, 239, 0.8);
     backdrop-filter: blur(6px);
     transition:
       background 0.3s ease,
@@ -406,7 +409,7 @@
     width: 100%;
     border-bottom: 1px solid rgba(26, 26, 26, 0.2);
     background: transparent;
-    padding-block: 12px;
+    padding-block: 10px;
     font-size: 15px;
     color: var(--ink);
     transition: border-color 0.5s var(--ease);

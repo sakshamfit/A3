@@ -6,6 +6,8 @@ Azeet Plaza, Commercial Road, Buddha Vihar, Taramandal, Gorakhpur, Uttar Pradesh
 
 Motion is GSAP + ScrollTrigger, the material board is a live Three.js scene, and every interior
 photograph on the page was generated for this build and ships from `public/images` as WebP.
+The page is a soft blush pink (`#FAEEEF`) with near-black `#111` / `#1a1a1a` bands, kept tight —
+no band has more than 84 px of padding.
 
 ## Run it
 
@@ -26,6 +28,34 @@ npm run preview
 | 3D | Three.js 0.186, `WebGLRenderer` — lazy chunk, no `@react-three/*` wrapper |
 | Icons | `iconify-icon` web component, Solar set registered offline from `@iconify-icons/solar` |
 | Imagery | 10 generated interiors, committed as WebP (~1.2 MB total) |
+
+## Palette & density
+
+The whole palette hangs off four custom properties in `src/index.css` (mirrored in
+`tailwind.config.js`), so the pink can be retuned from one place:
+
+| Token | Value | Used for |
+| --- | --- | --- |
+| `--bone` | `#faeeef` | page background, every light band |
+| `--blush` | `#f6e8e9` | contact band, tinted cards, image placeholders |
+| `--shell` | `#f4e2e4` | row hover surfaces |
+| `--rose` | `#c98b92` | scrollbar, marquee separators, focus detail |
+| `--ink` / `--ink-deep` | `#1a1a1a` / `#111111` | type, dark bands |
+
+Want a rosier or paler pink? Edit those four values — nothing else references a pink literal.
+
+**Density.** Band padding is `--pad-y: clamp(44px, 5.2vw, 84px)` (was up to 128 px), the nav is
+64 / 76 px tall, and the layout avoids half-empty columns:
+
+- Philosophy is a 3-column metrics rail plus a single 9-column narrative whose first row carries
+  the prose (7) and the amenity list (5) side by side, with the figure running full width beneath
+- Gallery rows are 330 px (was 400 px) with 12 px gutters; residence rows use `py-6`
+- The scroll-driven sections were shortened — Transform is 165/185 vh (was 220/260 vh) and the
+  Reviews track is 210 vh (was 320 vh), so no section asks for a long scroll with nothing new
+- Headline-to-copy rhythm sits at `mt-3`/`mt-4`/`mt-6`, and the sub-grid gutters at 20–28 px
+
+A source-level audit runs in the test harness and fails if an oversized spacing utility
+(`mt-16`, `gap-16`, `auto-rows-[4xx px]`, `h-[6xx px]`) creeps back in.
 
 ## Type system
 

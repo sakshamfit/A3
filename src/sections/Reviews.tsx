@@ -30,14 +30,14 @@ export default function Reviews() {
   }, [])
 
   return (
-    <section ref={scope} id="reviews" className="relative bg-bone md:h-[320vh]">
+    <section ref={scope} id="reviews" className="relative bg-bone md:h-[210vh]">
       <div className="md:sticky md:top-0 md:flex md:h-screen md:items-center md:overflow-hidden">
         <div className="w-full">
           <div className="wrap">
-            <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+            <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
               <div>
                 <p className="lbl text-ink/40">Reviews</p>
-                <h2 className="headline mt-5 max-w-[16ch] text-ink">
+                <h2 className="headline mt-3 max-w-[16ch] text-ink">
                   {BUSINESS.rating} from <span className="accent">{BUSINESS.reviewCount}</span> reviews
                 </h2>
               </div>
@@ -63,7 +63,7 @@ export default function Reviews() {
           </div>
 
           {/* Track */}
-          <div className="mt-10 md:mt-14">
+          <div className="mt-8 md:mt-10">
             <ul
               data-review-track
               className="wrap flex flex-col gap-5 md:w-max md:flex-row md:gap-6 md:pr-14"
@@ -71,7 +71,7 @@ export default function Reviews() {
               {REVIEWS.map((review, i) => (
                 <li
                   key={i}
-                  className="flex w-full flex-col justify-between border border-ink/10 bg-shell p-7 md:h-[380px] md:w-[420px] md:shrink-0 lg:w-[480px]"
+                  className="flex w-full flex-col justify-between border border-ink/10 bg-shell p-6 md:h-[320px] md:w-[360px] md:shrink-0 lg:w-[410px]"
                 >
                   <div>
                     <div className="flex items-center justify-between">
@@ -86,14 +86,14 @@ export default function Reviews() {
                     </div>
                     <ReviewQuote
                       review={review}
-                      className="mt-8 font-display text-[19px] font-medium leading-[1.35] tracking-[-0.01em] text-ink md:text-[22px]"
+                      className="mt-6 font-display text-[17px] font-medium leading-[1.35] tracking-[-0.01em] text-ink md:text-[20px]"
                     />
                   </div>
-                  <p className="lbl mt-8 text-ink/40">{review.meta}</p>
+                  <p className="lbl mt-6 text-ink/40">{review.meta}</p>
                 </li>
               ))}
 
-              <li className="hidden w-[380px] shrink-0 flex-col justify-between border border-ink/10 bg-ink p-7 text-chalk md:flex">
+              <li className="hidden w-[360px] shrink-0 flex-col justify-between border border-ink/10 bg-ink p-6 text-chalk md:flex">
                 <p className="lbl text-chalk/45">Next</p>
                 <div>
                   <p className="headline text-[clamp(26px,2.6vw,40px)] text-chalk">
@@ -105,7 +105,7 @@ export default function Reviews() {
                     href={BUSINESS.whatsapp}
                     target="_blank"
                     rel="noreferrer"
-                    className="btn on-ink mt-8"
+                    className="btn on-ink mt-6"
                   >
                     Book a consultation
                     <span className="ar" aria-hidden="true">

@@ -79,12 +79,12 @@ export default function Atelier() {
   return (
     <section ref={scope} id="atelier" className="on-ink band bg-inkdeep text-chalk">
       <div className="wrap">
-        <div className="flex flex-col gap-6 md:flex-row md:items-end md:justify-between">
+        <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p data-reveal className="lbl text-chalk/45">
               Material board · WebGL
             </p>
-            <h2 data-reveal className="headline mt-6 max-w-[20ch] text-chalk">
+            <h2 data-reveal className="headline mt-4 max-w-[20ch] text-chalk">
               Four finishes, <span className="accent">one</span> language
             </h2>
           </div>
@@ -95,10 +95,10 @@ export default function Atelier() {
           </p>
         </div>
 
-        <div className="mt-14 grid gap-8 lg:grid-cols-12">
+        <div className="mt-10 grid gap-7 lg:grid-cols-12">
           {/* Three.js room */}
           <div ref={hostRef} data-reveal="fade" className="lg:col-span-7">
-            <div className="h-[360px] w-full border border-white/10 sm:h-[460px] lg:h-[560px]">
+            <div className="h-[330px] w-full border border-white/10 sm:h-[400px] lg:h-[470px]">
               {mountScene ? (
                 <Suspense fallback={<SceneSkeleton />}>
                   <RoomScene activeMaterial={active} className="h-full w-full" />
@@ -123,10 +123,10 @@ export default function Atelier() {
                     onBlur={() => setActive(null)}
                     onClick={() => setActive(i)}
                     aria-pressed={active === i}
-                    className="group flex w-full items-center gap-5 py-5 text-left"
+                    className="group flex w-full items-center gap-4 py-3.5 text-left"
                   >
                     <span
-                      className="h-10 w-10 shrink-0 border border-white/20 transition-transform duration-500 ease-smooth group-hover:scale-110"
+                      className="h-9 w-9 shrink-0 border border-white/20 transition-transform duration-500 ease-smooth group-hover:scale-110"
                       style={{ background: material.swatch }}
                       aria-hidden="true"
                     />
@@ -154,7 +154,7 @@ export default function Atelier() {
               <hr data-rule className="rule" />
             </ul>
 
-            <p className="copy mt-8 text-[13px]">
+            <p className="copy mt-6 text-[12.5px]">
               The room above is lit through a single aperture — the way we plan lighting on site.
               Scroll to walk the camera in, then move your cursor across the finishes.
             </p>

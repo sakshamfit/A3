@@ -107,7 +107,7 @@ export default function Hero() {
     <section
       ref={scope}
       id="top"
-      className="relative flex min-h-[95vh] flex-col justify-end overflow-hidden bg-inkdeep"
+      className="relative flex min-h-[86vh] flex-col justify-end overflow-hidden bg-inkdeep"
     >
       {/* Media layers: image → gradient → content */}
       <div data-hero-media className="absolute inset-0">
@@ -123,7 +123,7 @@ export default function Hero() {
       <div data-hero-overlay className="absolute inset-0 bg-inkdeep/10" />
 
       <div className="relative z-10 flex flex-1 flex-col justify-end">
-        <div className="wrap pt-32 md:pt-40">
+        <div className="wrap pt-24 md:pt-28">
           <div data-reveal="fade" className="flex flex-wrap items-center gap-x-6 gap-y-3 text-chalk/70">
             <span className="lbl flex items-center gap-2">
               <iconify-icon icon="solar:star-bold" width="12" height="12" class="text-chalk/70" />
@@ -135,15 +135,15 @@ export default function Hero() {
             <span className="lbl">{BUSINESS.locality}</span>
           </div>
 
-          <h1 data-hero-heading data-reveal="mask" className="display mt-8 max-w-[18ch] text-bone">
+          <h1 data-hero-heading data-reveal="mask" className="display mt-6 max-w-[18ch] text-bone">
             Interiors <span className="accent">sculpted</span> around how you live
           </h1>
-          <p className="mt-6 max-w-[46ch] font-serif text-[clamp(16px,1.6vw,22px)] italic leading-snug text-chalk/70">
+          <p className="mt-4 max-w-[46ch] font-serif text-[clamp(15px,1.4vw,20px)] italic leading-snug text-chalk/70">
             {BUSINESS.name}
           </p>
         </div>
 
-        <div data-hero-copy className="wrap mt-12 flex flex-col gap-8 pb-14 sm:flex-row sm:items-end sm:justify-between">
+        <div data-hero-copy className="wrap mt-8 flex flex-col gap-6 pb-8 sm:flex-row sm:items-end sm:justify-between">
           <p data-reveal className="lede text-chalk/70">
             {BUSINESS.description} Designed, drawn and built by one studio — for homes
             and businesses across Gorakhpur and nearby Uttar Pradesh.
@@ -169,7 +169,7 @@ export default function Hero() {
 
       {/* Hero rail */}
       <div data-hero-rail className="relative z-10 border-t border-white/20">
-        <div className="wrap grid grid-cols-2 gap-6 py-6 md:grid-cols-4">
+        <div className="wrap grid grid-cols-2 gap-5 py-4 md:grid-cols-4">
           {HERO_FACTS.map((fact) => (
             <div key={fact.label}>
               <p className="lbl text-chalk/40">{fact.label}</p>

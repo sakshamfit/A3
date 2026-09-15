@@ -52,16 +52,16 @@ export default function Gallery() {
           <p data-reveal className="lbl text-ink/40">
             Visuals
           </p>
-          <h2 data-reveal className="headline mt-6 text-ink">
+          <h2 data-reveal className="headline mt-3 text-ink">
             The <span className="accent">Atmosphere</span>
           </h2>
-          <p data-reveal className="lede mx-auto mt-6 text-ink/60">
+          <p data-reveal className="lede mx-auto mt-4 text-ink/60">
             Detail first: stone, timber, light and the quiet hardware that makes a room feel
             finished.
           </p>
         </div>
 
-        <div className="mt-14 grid grid-cols-1 gap-4 md:auto-rows-[400px] md:grid-cols-3">
+        <div className="mt-10 grid grid-cols-1 gap-3 md:auto-rows-[330px] md:grid-cols-3">
           {GALLERY.map((item, i) => (
             <div
               key={item.src}
@@ -71,14 +71,14 @@ export default function Gallery() {
                 item.span === 'wide' ? 'md:col-span-2' : ''
               }`}
             >
-              <figure className="group relative h-full overflow-hidden bg-stone-200">
+              <figure className="group relative h-full overflow-hidden bg-blush">
                 <img
                   data-tile-image
                   src={item.src}
                   alt={item.alt}
                   loading="lazy"
                   decoding="async"
-                  className="h-[320px] w-full scale-[1.12] object-cover grayscale-[30%] transition-[filter,transform] duration-1000 ease-smooth group-hover:scale-[1.16] group-hover:grayscale-0 md:h-full"
+                  className="h-[270px] w-full scale-[1.12] object-cover grayscale-[30%] transition-[filter,transform] duration-1000 ease-smooth group-hover:scale-[1.16] group-hover:grayscale-0 md:h-full"
                 />
                 <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-inkdeep/75 via-inkdeep/10 to-transparent opacity-0 transition-opacity duration-700 group-hover:opacity-100" />
                 <figcaption className="pointer-events-none absolute bottom-6 left-6 translate-y-2 opacity-0 transition-all duration-700 ease-smooth group-hover:translate-y-0 group-hover:opacity-100">

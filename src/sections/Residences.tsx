@@ -70,14 +70,14 @@ export default function Residences() {
   }
 
   return (
-    <section ref={scope} id="projects" className="bg-bone pb-24 md:pb-32">
-      <div className="wrap pt-24 md:pt-32">
-        <div className="flex flex-col gap-8 pb-12 md:flex-row md:items-end md:justify-between">
+    <section ref={scope} id="projects" className="bg-bone pb-16 md:pb-20">
+      <div className="wrap pt-16 md:pt-20">
+        <div className="flex flex-col gap-5 pb-8 md:flex-row md:items-end md:justify-between">
           <div>
             <p data-reveal className="lbl text-ink/40">
               Selected work
             </p>
-            <h2 data-reveal className="headline mt-6 text-ink">
+            <h2 data-reveal className="headline mt-4 text-ink">
               Featured <span className="accent">Residences</span>
             </h2>
           </div>
@@ -90,7 +90,7 @@ export default function Residences() {
 
       {/* Sticky rail */}
       <div className="sticky top-0 z-30 border-y border-ink/10 bg-bone/85 backdrop-blur-md">
-        <div className="wrap flex items-center justify-between gap-4 py-4">
+        <div className="wrap flex items-center justify-between gap-4 py-3">
           <p className="lbl text-ink/50">Current availability</p>
           <div className="flex items-center gap-5 sm:gap-7">
             <span className="lbl num text-ink/40">
@@ -131,7 +131,7 @@ export default function Residences() {
             }`}
           >
             <hr data-rule className="rule" />
-            <div className="grid gap-6 py-8 md:grid-cols-12 md:gap-8 md:py-12">
+            <div className="grid gap-5 py-6 md:grid-cols-12 md:gap-8 md:py-8">
               <div className="md:col-span-4">
                 <div className="flex items-baseline gap-4">
                   <span className="lbl num text-ink/35">{residence.index}</span>
@@ -140,9 +140,9 @@ export default function Residences() {
 
                 <h3 className="subhead mt-4 text-ink">{residence.title}</h3>
                 <p className="lbl mt-3 text-ink/45">{residence.location}</p>
-                <p className="copy mt-5 text-[14px]">{residence.summary}</p>
+                <p className="copy mt-3 text-[13.5px]">{residence.summary}</p>
 
-                <ul className="mt-7 space-y-3">
+                <ul className="mt-5 space-y-2.5">
                   {[
                     { icon: 'solar:maximize-square-linear', label: residence.area },
                     { icon: 'solar:bed-linear', label: residence.config },
@@ -159,7 +159,7 @@ export default function Residences() {
                   href={BUSINESS.whatsapp}
                   target="_blank"
                   rel="noreferrer"
-                  className="tlink mt-8"
+                  className="tlink mt-6"
                 >
                   Enquire about this home
                   <span className="ar" aria-hidden="true">
@@ -169,16 +169,16 @@ export default function Residences() {
               </div>
 
               <div className="md:col-span-8">
-                <div className="relative overflow-hidden bg-stone-200">
+                <div className="relative overflow-hidden bg-blush">
                   <img
                     data-row-image
                     src={residence.image}
                     alt={`${residence.title} — ${residence.location}`}
                     loading="lazy"
                     decoding="async"
-                    className="h-[300px] w-full scale-[1.08] object-cover grayscale-[20%] transition-[filter] duration-1000 ease-smooth group-hover:grayscale-0 sm:h-[360px] md:h-[440px]"
+                    className="h-[250px] w-full scale-[1.08] object-cover grayscale-[20%] transition-[filter] duration-1000 ease-smooth group-hover:grayscale-0 sm:h-[300px] md:h-[360px]"
                   />
-                  <div className="pointer-events-none absolute inset-0 bg-stone-900/0 transition-colors duration-700 group-hover:bg-stone-900/5" />
+                  <div className="pointer-events-none absolute inset-0 bg-ink/0 transition-colors duration-700 group-hover:bg-ink/5" />
                 </div>
               </div>
             </div>

@@ -43,7 +43,7 @@ export default function Navbar() {
   return (
     <>
       <nav className="pointer-events-none fixed inset-x-0 top-0 z-50 mix-blend-difference">
-        <div className="pointer-events-auto flex items-center justify-between gap-4 px-6 py-5 text-white sm:px-10 md:px-14">
+        <div className="pointer-events-auto flex items-center justify-between gap-4 px-6 py-4 text-white sm:px-10 md:px-14">
           <a href="#top" aria-label={`${BUSINESS.name} — home`} className="flex items-baseline">
             <Wordmark />
           </a>
@@ -80,7 +80,7 @@ export default function Navbar() {
         aria-hidden={!menuOpen}
       >
         <div className="flex h-full flex-col">
-          <div className="flex items-center justify-between px-6 py-5 sm:px-10 md:px-14">
+          <div className="flex items-center justify-between px-6 py-4 sm:px-10 md:px-14">
             <Wordmark className="text-ink" />
             <button
               type="button"
@@ -93,14 +93,14 @@ export default function Navbar() {
           </div>
 
           <div className="flex flex-1 flex-col overflow-y-auto px-6 pb-8 sm:px-10 md:px-14">
-            <p className="lbl mt-6 text-ink/40">Menu</p>
-            <ul className="mt-8 border-t border-ink/10">
+            <p className="lbl mt-4 text-ink/40">Menu</p>
+            <ul className="mt-6 border-t border-ink/10">
               {MENU_LINKS.map((link, i) => (
                 <li key={link.label}>
                   <a
                     href={link.href}
                     onClick={() => setMenuOpen(false)}
-                    className="group flex items-center justify-between border-b border-ink/10 py-5 transition-colors duration-500 hover:bg-shell"
+                    className="group flex items-center justify-between border-b border-ink/10 py-3.5 transition-colors duration-500 hover:bg-shell"
                   >
                     <span className="flex items-baseline gap-5">
                       <span className="lbl num text-ink/35">
@@ -121,7 +121,7 @@ export default function Navbar() {
               ))}
             </ul>
 
-            <div className="mt-auto grid gap-8 border-t border-ink/10 pt-8 sm:grid-cols-3">
+            <div className="mt-auto grid gap-6 border-t border-ink/10 pt-6 sm:grid-cols-3">
               <div>
                 <p className="lbl text-ink/40">Studio</p>
                 <p className="copy mt-3 text-[13px] text-ink/70">

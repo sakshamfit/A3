@@ -113,17 +113,17 @@ export default function Philosophy() {
       id="philosophy"
       className="band bg-bone"
     >
-      <div className="wrap grid grid-cols-1 gap-14 md:grid-cols-12 md:gap-8">
+      <div className="wrap grid grid-cols-1 gap-10 md:grid-cols-12 md:gap-8">
         {/* Sticky metrics rail */}
-        <aside className="md:col-span-3 md:sticky md:top-32 md:self-start">
+        <aside className="md:col-span-3 md:sticky md:top-24 md:self-start">
           <p data-reveal className="lbl text-ink/40">
             The studio in numbers
           </p>
-          <div className="mt-8">
+          <div className="mt-6">
             {METRICS.map((metric, i) => (
-              <div key={metric.value} className="pb-7">
+              <div key={metric.value} className="pb-5">
                 <hr data-rule className="rule" />
-                <div className="flex items-start gap-4 pt-6">
+                <div className="flex items-start gap-3.5 pt-4">
                   <iconify-icon
                     icon={metric.icon}
                     width="20"
@@ -144,7 +144,7 @@ export default function Philosophy() {
                       )}
                       <span className="lbl text-ink/40">{metric.suffix}</span>
                     </p>
-                    <p className="copy mt-3 text-[13px] text-ink/60">{metric.label}</p>
+                    <p className="copy mt-2 text-[12.5px] text-ink/60">{metric.label}</p>
                   </div>
                 </div>
               </div>
@@ -152,35 +152,74 @@ export default function Philosophy() {
           </div>
         </aside>
 
-        {/* Spacer */}
-        <div className="hidden md:col-span-2 md:block" aria-hidden="true" />
+        {/* Narrative — prose and the amenity list share the first row so the
+            measure never leaves half a column empty; the figure runs full width
+            underneath. */}
+        <div className="md:col-span-9 md:pl-2">
+          <div className="grid gap-8 lg:grid-cols-12 lg:gap-10">
+            <div className="lg:col-span-7">
+              <p data-reveal className="lbl text-ink/40">
+                Our philosophy
+              </p>
+              <h2 data-reveal className="headline mt-4 max-w-[22ch] text-ink">
+                One studio from the first sketch to the <span className="accent">last handle</span>
+              </h2>
 
-        {/* Narrative */}
-        <div className="md:col-span-7">
-          <p data-reveal className="lbl text-ink/40">
-            Our philosophy
-          </p>
-          <h2 data-reveal className="headline mt-6 max-w-[22ch] text-ink">
-            One studio from the first sketch to the <span className="accent">last handle</span>
-          </h2>
+              <div className="mt-6 space-y-4">
+                <p data-scrub-words className="lede text-ink">
+                  A3 began on the second floor of Azeet Plaza with a simple frustration: good
+                  drawings kept falling apart on site. So we built the workshop, kept the
+                  architect in-house, and stopped handing our work to anybody else.
+                </p>
+                <p data-reveal className="copy text-[14.5px]">
+                  Today the same team that measures your rooms also makes your shutters, sets your
+                  stone and returns after the monsoon to check the hinges. Design and build, under
+                  one roof in Gorakhpur — residential, retail and everything in between.
+                </p>
+              </div>
 
-          <div className="mt-8 space-y-5">
-            <p data-scrub-words className="lede text-ink">
-              A3 began on the second floor of Azeet Plaza with a simple frustration: good
-              drawings kept falling apart on site. So we built the workshop, kept the architect
-              in-house, and stopped handing our work to anybody else.
-            </p>
-            <p data-reveal className="copy text-[15px]">
-              Today the same team that measures your rooms also makes your shutters, sets your
-              stone and returns after the monsoon to check the hinges. Design and build, under
-              one roof in Gorakhpur — residential, retail and everything in between.
-            </p>
+              <div data-reveal className="mt-7 flex flex-wrap items-center gap-x-8 gap-y-3">
+                <a href={BUSINESS.whatsapp} target="_blank" rel="noreferrer" className="btn">
+                  Start a project
+                  <span className="ar" aria-hidden="true">
+                    →
+                  </span>
+                </a>
+                <a href={BUSINESS.mapsUrl} target="_blank" rel="noreferrer" className="tlink">
+                  Visit the studio
+                  <span className="ar" aria-hidden="true">
+                    →
+                  </span>
+                </a>
+              </div>
+            </div>
+
+            {/* Amenities */}
+            <div className="lg:col-span-5">
+              {AMENITIES.map((amenity) => (
+                <div key={amenity.label} data-reveal className="pb-4">
+                  <hr data-rule className="rule" />
+                  <div className="flex items-start gap-4 pt-4">
+                    <iconify-icon
+                      icon={amenity.icon}
+                      width="19"
+                      height="19"
+                      class="mt-0.5 shrink-0 text-ink/45"
+                    />
+                    <div>
+                      <p className="subhead text-[14.5px]">{amenity.label}</p>
+                      <p className="copy mt-1.5 text-[12.5px]">{amenity.copy}</p>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* Image with clip-path reveal */}
           <figure
             data-philosophy-figure
-            className="image-reveal relative mt-12 cursor-none overflow-hidden bg-stone-200"
+            className="image-reveal relative mt-8 cursor-none overflow-hidden bg-blush"
           >
             <img
               data-philosophy-image
@@ -188,49 +227,12 @@ export default function Philosophy() {
               alt="Detail of a finished interior: curved plaster meeting fluted oak, with a honed travertine ledge"
               loading="lazy"
               decoding="async"
-              className="h-[420px] w-full scale-[1.08] object-cover sm:h-[520px] md:h-[600px]"
+              className="h-[320px] w-full scale-[1.08] object-cover sm:h-[400px] md:h-[440px]"
             />
             <figcaption className="absolute bottom-6 left-6 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-md">
               <span className="lbl text-white">Limewash · Smoked oak · Travertine</span>
             </figcaption>
           </figure>
-
-          {/* Amenities */}
-          <div className="mt-12 grid gap-6 sm:grid-cols-3">
-            {AMENITIES.map((amenity) => (
-              <div key={amenity.label} data-reveal className="pt-5">
-                <hr data-rule className="rule" />
-                <iconify-icon
-                  icon={amenity.icon}
-                  width="20"
-                  height="20"
-                  class="mt-5 text-ink/45"
-                />
-                <p className="subhead mt-4 text-[15px]">{amenity.label}</p>
-                <p className="copy mt-2 text-[13px]">{amenity.copy}</p>
-              </div>
-            ))}
-          </div>
-
-          <div data-reveal className="mt-14 flex flex-wrap items-center gap-x-8 gap-y-4">
-            <a
-              href={BUSINESS.whatsapp}
-              target="_blank"
-              rel="noreferrer"
-              className="btn"
-            >
-              Start a project
-              <span className="ar" aria-hidden="true">
-                →
-              </span>
-            </a>
-            <a href={BUSINESS.mapsUrl} target="_blank" rel="noreferrer" className="tlink">
-              Visit the studio
-              <span className="ar" aria-hidden="true">
-                →
-              </span>
-            </a>
-          </div>
         </div>
       </div>
     </section>

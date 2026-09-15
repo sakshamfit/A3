@@ -39,13 +39,13 @@ export default function Marquee() {
       ref={scope}
       className="on-ink select-none overflow-hidden border-y border-white/10 bg-ink"
     >
-      <div data-ticker className="flex w-max items-center py-4">
+      <div data-ticker className="flex w-max items-center py-3">
         {[0, 1].map((group) => (
           <div key={group} className="flex shrink-0 items-center" aria-hidden={group === 1}>
             {MARQUEE.map((item) => (
               <span key={item} className="flex items-center">
                 <span className="lbl px-6 text-chalk/70">{item}</span>
-                <span className="text-chalk/25" aria-hidden="true">
+                <span className="text-rose/60" aria-hidden="true">
                   ✳
                 </span>
               </span>

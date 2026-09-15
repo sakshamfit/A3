@@ -8,11 +8,11 @@ export default function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="on-ink bg-stone-900 px-6 py-12 text-stone-400 sm:px-10 md:px-14">
-      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-10">
-        <div className="flex flex-col gap-10 md:flex-row md:items-end md:justify-between">
+    <footer className="on-ink bg-stone-900 px-6 py-9 text-stone-400 sm:px-10 md:px-14">
+      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-7">
+        <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="display text-[clamp(38px,7vw,92px)] text-stone-100">
+            <p className="display text-[clamp(30px,5.2vw,62px)] text-stone-100">
               Let&apos;s build
               <br />
               <span className="accent">something</span>
@@ -21,7 +21,7 @@ export default function Footer() {
               href={BUSINESS.whatsapp}
               target="_blank"
               rel="noreferrer"
-              className="btn on-ink mt-8 border-stone-100 text-stone-100 hover:bg-stone-100 hover:text-stone-900"
+              className="btn on-ink mt-6 border-stone-100 text-stone-100 hover:bg-stone-100 hover:text-stone-900"
             >
               Book a consultation
               <span className="ar" aria-hidden="true">

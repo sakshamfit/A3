@@ -37,13 +37,13 @@ export default function Transform() {
   }, [])
 
   return (
-    <section ref={scope} id="process" className="relative h-[220vh] bg-bone md:h-[260vh]">
+    <section ref={scope} id="process" className="relative h-[165vh] bg-bone md:h-[185vh]">
       <div className="sticky top-0 flex h-svh flex-col justify-center overflow-hidden md:h-screen">
         <div className="wrap">
-          <div className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
+          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="lbl text-ink/40">Process</p>
-              <h2 className="headline mt-5 max-w-[20ch] text-ink">
+              <h2 className="headline mt-3 max-w-[20ch] text-ink">
                 Shell to <span className="accent">finished</span>
               </h2>
             </div>
@@ -53,16 +53,16 @@ export default function Transform() {
             </p>
           </div>
 
-          <div className="mt-8 grid gap-8 lg:grid-cols-12">
+          <div className="mt-6 grid gap-6 lg:grid-cols-12">
             {/* Wipe frame */}
-            <figure className="relative overflow-hidden bg-stone-200 lg:col-span-8">
+            <figure className="relative overflow-hidden bg-blush lg:col-span-8">
               {/* finished render underneath */}
               <img
                 src={IMAGES.residenceObsidian}
                 alt="Finished dark modular kitchen after an A3 fit-out"
                 loading="lazy"
                 decoding="async"
-                className="h-[200px] w-full object-cover sm:h-[320px] lg:h-[440px]"
+                className="h-[190px] w-full object-cover sm:h-[290px] lg:h-[380px]"
               />
               {/* shell layer wiped away by --p — same room, blueprint-toned.
                   p=0 → shell fully covers the frame, p=1 → shell fully wiped. */}
@@ -102,7 +102,7 @@ export default function Transform() {
             {/* Steps */}
             <ol className="grid grid-cols-2 gap-x-6 lg:col-span-4 lg:block">
               {PROCESS.map((step) => (
-                <li key={step.step} data-step className="border-t border-ink/10 py-3 lg:py-4">
+                <li key={step.step} data-step className="border-t border-ink/10 py-2.5 lg:py-3">
                   <div className="flex items-baseline gap-4">
                     <span className="lbl num text-ink/40">{step.step}</span>
                     <div>
@@ -116,7 +116,7 @@ export default function Transform() {
           </div>
 
           {/* Progress bar */}
-          <div className="mt-8 h-px w-full bg-ink/10">
+          <div className="mt-6 h-px w-full bg-ink/10">
             <div
               className="h-px bg-ink"
               style={{ width: 'calc(var(--p, 0) * 100%)' }}
