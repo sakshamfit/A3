@@ -1,15 +1,19 @@
 import Wordmark from '../components/Wordmark'
 import { BUSINESS } from '../lib/site'
+import { GridPulse } from '@/components/ui/grid-pulse'
 
 const FOOTER_LINKS = ['Legal', 'Privacy', 'Credits'] as const
 
-/** Section 9 — Footer. Stone-900 band, stacked on mobile, one row on desktop. */
+/** Footer — Grid Pulse in the last band. Hairline grid lights up where the pointer passes. */
 export default function Footer() {
   const year = new Date().getFullYear()
 
   return (
-    <footer className="on-ink bg-stone-900 px-6 py-9 text-stone-400 sm:px-10 md:px-14">
-      <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-7">
+    <footer className="on-ink relative overflow-hidden bg-stone-900 px-6 py-9 text-stone-400 sm:px-10 md:px-14">
+      {/* Grid Pulse — carolinaraulino pattern, fills the footer */}
+      <GridPulse cellSize={26} />
+
+      <div className="relative z-10 mx-auto flex w-full max-w-[1440px] flex-col gap-7">
         <div className="flex flex-col gap-8 md:flex-row md:items-end md:justify-between">
           <div>
             <p className="display text-[clamp(30px,5.2vw,62px)] text-stone-100">

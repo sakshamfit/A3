@@ -1,20 +1,21 @@
-import { Suspense, lazy, useEffect, useRef, useState } from "react";
-import { BUSINESS, RESIDENCES } from "../lib/site";
+import { Suspense, lazy } from "react"
+import { BUSINESS, RESIDENCES } from "../lib/site"
+import { CoverflowCarousel } from "@/components/ui/coverflow-carousel"
 
-/* framer-motion is ~50 kB gzip and only this section needs it, so the panel
+/* framer-motion is ~50 kB gzip and only the first panel needs it, so the panel
    loads on approach and a static frame stands in until it arrives. */
 const ScrollExpandMedia = lazy(
-  () => import("@/components/ui/scroll-expansion-hero"),
-);
+  () => import("@/components/ui/scroll-expansion-hero")
+)
 
 function PanelPlaceholder({
   image,
   title,
   backdrop,
 }: {
-  image: string;
-  title: string;
-  backdrop: string;
+  image: string
+  title: string
+  backdrop: string
 }) {
   return (
     <div className="relative h-[100svh] overflow-hidden">
@@ -32,55 +33,38 @@ function PanelPlaceholder({
         <h2 className="display mix-blend-difference text-white">{title}</h2>
       </div>
     </div>
-  );
+  )
 }
 
 /**
- * Section — Featured Residences.
+ * Section — Featured Residences
  *
- * Each project is a scroll-expansion panel: the image starts as a small centred
- * card on a full-bleed backdrop and grows to fill the viewport as you scroll,
- * with the title's two halves travelling apart and the project details fading
- * in over the expanded media. A sticky "current availability" rail tracks
- * whichever panel owns the viewport and jumps between them.
+ * First residence uses the scroll-expansion hero (the full-homescope
+ * modular-kitchen effect). The rest of the collection is presented with the
+ * Ruixen UI coverflow carousel — reversed perspective, centre card square,
+ * neighbours swung forward, drag to explore.
  */
 export default function Residences() {
-  const panelRefs = useRef<Array<HTMLDivElement | null>>([]);
-  const [active, setActive] = useState(0);
+  const featured = RESIDENCES[0]
+  const collection = RESIDENCES.slice(1)
 
-  /* Keep the rail's index in step with the panel filling the viewport. */
-  useEffect(() => {
-    const nodes = panelRefs.current.filter((node): node is HTMLDivElement =>
-      Boolean(node),
-    );
-    if (!nodes.length || typeof IntersectionObserver === "undefined") return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        for (const entry of entries) {
-          if (!entry.isIntersecting) continue;
-          const index = nodes.indexOf(entry.target as HTMLDivElement);
-          if (index >= 0) setActive(index);
-        }
-      },
-      { rootMargin: "-45% 0px -45% 0px", threshold: 0 },
-    );
-
-    nodes.forEach((node) => observer.observe(node));
-    return () => observer.disconnect();
-  }, []);
-
-  const jump = (direction: 1 | -1) => {
-    const next = (active + direction + RESIDENCES.length) % RESIDENCES.length;
-    setActive(next);
-    panelRefs.current[next]?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  };
+  const coverflowSlides = collection.map((r) => ({
+    src: r.image,
+    alt: `${r.title} — ${r.location}`,
+    title: r.title,
+    subtitle: r.location,
+    description: r.summary,
+    meta: [
+      { label: "Area", value: r.area },
+      { label: "Type", value: r.config },
+      { label: "Year", value: r.year },
+    ],
+    href: BUSINESS.whatsapp,
+  }))
 
   return (
-    <section id="projects" className="bg-bone pb-16 md:pb-20">
+    <section id="projects" className="bg-bone">
+      {/* header */}
       <div className="wrap pt-16 md:pt-20">
         <div className="flex flex-col gap-5 pb-8 md:flex-row md:items-end md:justify-between">
           <div>
@@ -90,144 +74,130 @@ export default function Residences() {
             </h2>
           </div>
           <p className="lede text-ink/60">
-            Four rooms we finished this year. Scroll to open each one — the
-            panel expands to fill the screen.
+            First, scroll to open one home full-screen. Then drag the rack to
+            wander the rest of the collection.
           </p>
         </div>
       </div>
 
-      {/* Sticky rail */}
-      <div className="sticky top-0 z-30 border-y border-ink/10 bg-bone/85 backdrop-blur-md">
+      {/* ——— 01 — Scroll-expansion hero: ONLY the first residence ——— */}
+      <div className="border-t border-ink/10">
         <div className="wrap flex items-center justify-between gap-4 py-3">
-          <p className="lbl text-ink/50">Current availability</p>
-          <div className="flex items-center gap-5 sm:gap-7">
-            <span className="lbl num text-ink/40">
-              {RESIDENCES[active].index} /{" "}
-              {String(RESIDENCES.length).padStart(2, "0")}
-            </span>
-            <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => jump(-1)}
-                aria-label="Previous residence"
-                className="icon-btn rounded-full"
-              >
-                <iconify-icon
-                  icon="solar:arrow-left-linear"
-                  width="16"
-                  height="16"
-                />
-              </button>
-              <button
-                type="button"
-                onClick={() => jump(1)}
-                aria-label="Next residence"
-                className="icon-btn rounded-full"
-              >
-                <iconify-icon
-                  icon="solar:arrow-right-linear"
-                  width="16"
-                  height="16"
-                />
-              </button>
-            </div>
-          </div>
+          <p className="lbl text-ink/50">Featured — Scroll to expand</p>
+          <span className="lbl num text-ink/40">
+            {featured.index} / {String(RESIDENCES.length).padStart(2, "0")} · Full
+            homescope
+          </span>
         </div>
       </div>
 
-      {/* Expansion panels */}
-      <div>
-        {RESIDENCES.map((residence, i) => (
-          <div
-            key={residence.title}
-            ref={(node) => {
-              panelRefs.current[i] = node;
-            }}
-          >
-            <Suspense
-              fallback={
-                <PanelPlaceholder
-                  image={residence.image}
-                  backdrop={residence.backdrop}
-                  title={residence.title}
-                />
-              }
-            >
-              <ScrollExpandMedia
-                mediaType="image"
-                mediaSrc={residence.image}
-                bgImageSrc={residence.backdrop}
-                title={residence.title}
-                date={`${residence.index} — ${residence.year}`}
-                scrollToExpand="Scroll to expand"
-                textBlend
-                scrollLength={160}
-              >
-                <div className="wrap pb-7 pt-10">
-                  <div className="border border-white/15 bg-inkdeep/50 p-5 backdrop-blur-md sm:p-6">
-                    <div className="grid gap-5 md:grid-cols-12 md:gap-8">
-                      <div className="md:col-span-7">
-                        <p className="lbl text-chalk/60">
-                          {residence.location}
-                        </p>
-                        <p className="copy mt-2 max-w-[46ch] text-[13.5px] text-chalk/80">
-                          {residence.summary}
-                        </p>
-                      </div>
-
-                      <div className="md:col-span-5">
-                        <ul className="flex flex-wrap gap-x-6 gap-y-2">
-                          {[
-                            {
-                              icon: "solar:maximize-square-linear",
-                              label: residence.area,
-                            },
-                            {
-                              icon: "solar:bed-linear",
-                              label: residence.config,
-                            },
-                            {
-                              icon: "solar:tag-price-linear",
-                              label: residence.price,
-                            },
-                          ].map((fact) => (
-                            <li
-                              key={fact.label}
-                              className="flex items-center gap-2.5"
-                            >
-                              <iconify-icon
-                                icon={fact.icon}
-                                width="17"
-                                height="17"
-                                class="text-chalk/55"
-                              />
-                              <span className="lbl text-chalk/80">
-                                {fact.label}
-                              </span>
-                            </li>
-                          ))}
-                        </ul>
-
-                        <a
-                          href={BUSINESS.whatsapp}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="btn on-ink mt-5"
-                        >
-                          Enquire about this home
-                          <span className="ar" aria-hidden="true">
-                            →
-                          </span>
-                        </a>
-                      </div>
-                    </div>
-                  </div>
+      <Suspense
+        fallback={
+          <PanelPlaceholder
+            image={featured.image}
+            backdrop={featured.backdrop}
+            title={featured.title}
+          />
+        }
+      >
+        <ScrollExpandMedia
+          mediaType="image"
+          mediaSrc={featured.image}
+          bgImageSrc={featured.backdrop}
+          title={featured.title}
+          date={`${featured.index} — ${featured.year} · Full-homescope`}
+          scrollToExpand="Scroll to expand"
+          textBlend
+          scrollLength={150}
+        >
+          <div className="wrap pb-7 pt-10">
+            <div className="border border-white/15 bg-inkdeep/50 p-5 backdrop-blur-md sm:p-6">
+              <div className="grid gap-5 md:grid-cols-12 md:gap-8">
+                <div className="md:col-span-7">
+                  <p className="lbl text-chalk/60">{featured.location}</p>
+                  <p className="copy mt-2 max-w-[46ch] text-[13.5px] text-chalk/80">
+                    {featured.summary} Modular kitchens & wardrobes built in our
+                    workshop, fitted on site to the millimetre — every room,
+                    including the ones nobody photographs.
+                  </p>
+                  <p className="mt-3 hidden items-center gap-2 text-[12px] tracking-wide text-chalk/50 sm:inline-flex">
+                    <iconify-icon
+                      icon="solar:maximize-square-linear"
+                      width="14"
+                      height="14"
+                    />
+                    Full-homescope · One price, itemised before work begins
+                  </p>
                 </div>
-              </ScrollExpandMedia>
-            </Suspense>
+
+                <div className="md:col-span-5">
+                  <ul className="flex flex-wrap gap-x-6 gap-y-2">
+                    {[
+                      {
+                        icon: "solar:maximize-square-linear",
+                        label: featured.area,
+                      },
+                      {
+                        icon: "solar:bed-linear",
+                        label: featured.config,
+                      },
+                      {
+                        icon: "solar:tag-price-linear",
+                        label: featured.price,
+                      },
+                    ].map((fact) => (
+                      <li key={fact.label} className="flex items-center gap-2.5">
+                        <iconify-icon
+                          icon={fact.icon}
+                          width="17"
+                          height="17"
+                          class="text-chalk/55"
+                        />
+                        <span className="lbl text-chalk/80">{fact.label}</span>
+                      </li>
+                    ))}
+                  </ul>
+
+                  <a
+                    href={BUSINESS.whatsapp}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="btn on-ink mt-5"
+                  >
+                    Enquire about this home
+                    <span className="ar" aria-hidden="true">
+                      →
+                    </span>
+                  </a>
+                </div>
+              </div>
+            </div>
           </div>
-        ))}
+        </ScrollExpandMedia>
+      </Suspense>
+
+      {/* ——— 02 — Coverflow carousel: the rest of the collection ——— */}
+      <div className="border-y border-ink/10 bg-bone">
+        <div className="wrap flex flex-col gap-4 py-10 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <p className="lbl text-ink/40">Collection · Coverflow</p>
+            <h3 className="subhead mt-2 text-[clamp(18px,2.4vw,26px)] text-ink">
+              Drag the rack — <span className="accent">more homes</span>
+            </h3>
+          </div>
+          <p className="copy max-w-[46ch] text-[13.5px] text-ink/60">
+            The centre card sits square while the ones beside it swing their outer
+            edges toward you. The caption follows. Tap a side card to bring it
+            forward.
+          </p>
+        </div>
+      </div>
+
+      <div className="bg-bone pb-16 pt-10 sm:pt-12 md:pb-20">
+        <div className="wrap">
+          <CoverflowCarousel slides={coverflowSlides} showCaption />
+        </div>
       </div>
     </section>
-  );
+  )
 }

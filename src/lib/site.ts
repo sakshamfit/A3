@@ -32,7 +32,7 @@ export const BUSINESS = {
   founded: '2016',
 } as const
 
-/** Locally generated interiors, served as WebP. */
+/** Locally generated interiors, served as WebP / JPG. */
 export const IMAGES = {
   hero: '/images/hero-living.webp',
   philosophy: '/images/philosophy-detail.webp',
@@ -44,6 +44,15 @@ export const IMAGES = {
   galleryLounge: '/images/gal-lounge.webp',
   galleryKitchen: '/images/gal-kitchen.webp',
   galleryBedroom: '/images/gal-bedroom.webp',
+  // new interiors generated for stacked spreads & flips
+  ivoryKitchen: '/images/res-ivory-kitchen.jpg',
+  sageBedroom: '/images/res-sage-bedroom.jpg',
+  archedLibrary: '/images/res-arched-library.jpg',
+  brassBath: '/images/res-brass-bath.jpg',
+  oakDining: '/images/res-oak-dining.jpg',
+  courtyard: '/images/res-courtyard.jpg',
+  workspace: '/images/res-workspace.jpg',
+  obsidianLuxe: '/images/res-obsidian-luxe.jpg',
 } as const
 
 export const MARQUEE = [
@@ -187,6 +196,92 @@ export const PROCESS = [
   },
 ] as const
 
+/** Stack Spread — deck that fans out on scroll */
+export const STACK_SPREAD_ITEMS = [
+  {
+    src: IMAGES.galleryLiving,
+    alt: "Living room with oak battens wrapping a lit media wall",
+    title: "Living",
+    subtitle: "Terracotta Villa",
+  },
+  {
+    src: IMAGES.galleryLounge,
+    alt: "Lounge alcove with two curved armchairs and an arched mirror",
+    title: "Lounge",
+    subtitle: "Obsidian Loft",
+  },
+  {
+    src: IMAGES.ivoryKitchen,
+    alt: "Ivory modular kitchen with smoked oak cabinets and travertine island",
+    title: "Ivory Kitchen",
+    subtitle: "Taramandal · 2025",
+  },
+  {
+    src: IMAGES.sageBedroom,
+    alt: "Sage fluted headboard bedroom with linen bedding",
+    title: "Sage Bedroom",
+    subtitle: "Buddha Vihar · 2025",
+  },
+  {
+    src: IMAGES.oakDining,
+    alt: "Oak dining table with garden view",
+    title: "Dining",
+    subtitle: "Rapti Nagar · 2024",
+  },
+] as const
+
+/** GSAP Card Flip — editorial frames */
+export const FLIP_FRAMES = [
+  {
+    id: "obsidian",
+    image: IMAGES.residenceObsidian,
+    alt: "Dark stone kitchen island with seamless storage walls",
+    title: "Obsidian Loft",
+    subtitle: "Taramandal · 3 BHK",
+    caption: "The dark stone island anchors the apartment — storage walls disappear around it.",
+  },
+  {
+    id: "ivory",
+    image: IMAGES.ivoryKitchen,
+    alt: "Ivory kitchen with travertine island and oak stools",
+    title: "Ivory Kitchen",
+    subtitle: "Taramandal · Modular",
+    caption: "Ivory shutters, oak inside, travertine on top — built in our workshop to the millimetre.",
+  },
+  {
+    id: "sage",
+    image: IMAGES.sageBedroom,
+    alt: "Sage bedroom with fluted plaster headboard",
+    title: "Sage Bedroom",
+    subtitle: "Buddha Vihar · 4 BHK",
+    caption: "Fluted plaster catches the morning light; the wardrobe behind it holds a whole dressing room.",
+  },
+  {
+    id: "arched",
+    image: IMAGES.archedLibrary,
+    alt: "Arched library reading nook with skylight",
+    title: "Arched Nook",
+    subtitle: "Rapti Nagar · Library",
+    caption: "A reading arch under a skylight — limewash, oak shelves, terracotta underfoot.",
+  },
+  {
+    id: "dining",
+    image: IMAGES.oakDining,
+    alt: "Oak dining with garden view",
+    title: "Garden Dining",
+    subtitle: "Rapti Nagar · Villa",
+    caption: "Twelve seats around smoked oak, garden beyond the glass — where the villa slows down.",
+  },
+  {
+    id: "bath",
+    image: IMAGES.brassBath,
+    alt: "Black stone bathroom with brass fittings and arched mirror",
+    title: "Brass Bath",
+    subtitle: "Golghar · Bath",
+    caption: "Black stone, brass, arched mirror — the wet area that feels like a lounge.",
+  },
+] as const
+
 /** Gallery mosaic. */
 export const GALLERY = [
   {
@@ -257,3 +352,74 @@ export const SERVICES = [
   'Kitchen designs & kitchen interior',
   'Architecture',
 ] as const
+
+/** Studio team — shown in the Meet the Owners carousel. */
+export type Owner = {
+  name: string
+  role: string
+  avatar: string
+  quote: string
+  bio: string
+  location: string
+  experience: string
+  tags: string[]
+  meta: string
+  socials: {
+    instagram?: string
+    linkedin?: string
+    twitter?: string
+  }
+}
+
+export const OWNERS: Owner[] = [
+  {
+    name: 'Aman Agarwal',
+    role: 'Founder & Principal Designer',
+    avatar:
+      'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=640&h=640&fit=crop&crop=face&q=70&auto=format',
+    quote:
+      'Good drawings kept falling apart on site — so we kept the drawings and the site under one roof. That is still how we work.',
+    bio: 'Started A3 on the second floor of Azeet Plaza in 2016. Aman draws every plan himself, then stays on site until the last handle is level. Clients know him for the notebook he carries and the way he will redraw a kitchen three times rather than force a compromise.',
+    location: 'Gorakhpur',
+    experience: '12+ years',
+    tags: ['Residential', 'Turnkey', 'On-site every day'],
+    meta: 'B.Arch · Founded A3 in 2016',
+    socials: {
+      instagram: 'https://instagram.com',
+      linkedin: 'https://linkedin.com',
+    },
+  },
+  {
+    name: 'Shalini Agarwal',
+    role: 'Head of Interiors & Sourcing',
+    avatar:
+      'https://images.unsplash.com/photo-1438761681033-6461ffad8d80?w=640&h=640&fit=crop&crop=face&q=70&auto=format',
+    quote:
+      'A home is not a catalogue. It is the one place where nothing should need explaining — every colour, every joint, every light.',
+    bio: 'Shalini runs materials and light. From travertine ledges to the exact hinge that will survive a monsoon, she tests everything in our workshop before it reaches your home. She also leads the final styling — the step that makes a finished room feel inhabited from day one.',
+    location: 'Taramandal',
+    experience: '9 years',
+    tags: ['Materials', 'Lighting', 'Styling'],
+    meta: 'M.Des Interiors · Joined 2018',
+    socials: {
+      instagram: 'https://instagram.com',
+      linkedin: 'https://linkedin.com',
+    },
+  },
+  {
+    name: 'Vikash Yadav',
+    role: 'Project Head — Execution & Joinery',
+    avatar:
+      'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=640&h=640&fit=crop&crop=face&q=70&auto=format',
+    quote: 'We build the shutters in our shop so that on site we are fitting, not figuring. That one choice saves weeks.',
+    bio: 'Vikash came from our carpentry workshop and now runs every site. He coordinates the eight trades that can be in one apartment at once and keeps the single price we quoted. If you meet him at 7 am he already knows which wall will be painted that day.',
+    location: 'Workshop & Site',
+    experience: '14 years',
+    tags: ['Joinery', 'Site supervision', 'Handover'],
+    meta: 'Master Carpenter · With A3 since 2017',
+    socials: {
+      instagram: 'https://instagram.com',
+      twitter: 'https://x.com',
+    },
+  },
+]
