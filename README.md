@@ -24,8 +24,10 @@ npm run preview
 | --- | --- |
 | Build | Vite 5 + React 18 + TypeScript |
 | Styling | Tailwind CSS 3 (PostCSS build) + a small token layer in `src/index.css` |
-| Motion | GSAP 3.15 — ScrollTrigger + SplitText (bundled, no CDN) |
-| 3D | Three.js 0.186, `WebGLRenderer` — lazy chunk, no `@react-three/*` wrapper |
+| Motion (page) | GSAP 3.15 — ScrollTrigger + SplitText (bundled, no CDN) |
+| Motion (components) | framer-motion motion values — the residence expansion panels, lazy chunk |
+| 3D | Three.js 0.186, `WebGLRenderer` — lazy chunk, no `@react-three/*` wrapper, drop-in `.glb`/`.hdr` path |
+| Structure | shadcn conventions — `components.json`, `@/components/ui`, `cn()` — on Vite, so **no `next`** |
 | Icons | `iconify-icon` web component, Solar set registered offline from `@iconify-icons/solar` |
 | Imagery | 10 generated interiors, committed as WebP (~1.2 MB total) |
 
@@ -89,12 +91,14 @@ re-tuned to the A3 palette:
 npm run test:smoke     # builds, then runs the jsdom regression harness
 ```
 
-`tools/smoke/` renders `<App />` into jsdom against the **real built CSS** and asserts 80
+`tools/smoke/` renders `<App />` into jsdom against the **real built CSS** and asserts 97
 properties that are easy to break and hard to notice: that no scroll-revealed element is left
 transparent, that the consultation form and every field in it is visible, the pink palette
 tokens compile to the right `rgb()` values, the Archivo typography contract, scroll-safety, and
 layout density (band padding ceiling plus a source audit that fails on oversized spacing
-utilities). Run it after touching a section — it has caught real bugs, including a stranded
+utilities), that the four residence expansion panels exist, pair a media image with a
+backdrop, stay lazy and never hijack the wheel, and that the Atelier board keeps discovering a
+dropped-in `.glb` without pulling the three loaders onto the critical path. Run it after touching a section — it has caught real bugs, including a stranded
 `opacity: 0` form and an inverted shell-wipe clip path.
 
 ## Sections
@@ -140,7 +144,8 @@ through the aperture with soft shadow maps, ACES tone mapping and a canvas-gener
 texture for the sun patch. It pauses when off-screen (`IntersectionObserver`), renders once when
 `prefers-reduced-motion` is set, falls back to a static gradient panel without WebGL, and is
 `React.lazy`-loaded only once the section comes within 500 px of the viewport — so the main
-bundle stays at ~121 kB gzip and Three.js (~134 kB gzip) loads on demand.
+bundle stays at ~123 kB gzip and Three.js (~155 kB gzip) loads on demand. The whole room is
+swappable for a real `.glb` asset — see *Material board — real assets* above.
 
 ## Scrolling
 
@@ -155,6 +160,74 @@ A plain, naturally scrolling document — this is deliberate:
 - GSAP's entrance states live behind `.gsap-ready` (added only once JS boots) and every
   `gsap.context()` reverts on unmount, so the page is fully readable without JS and after a
   route/section teardown
+
+## Residence expansion panels
+
+The four projects in `#projects` use the scroll-expansion treatment: a small centred card on a
+full-bleed backdrop that grows to fill the viewport as it scrolls past, the two title halves
+travelling apart and the detail bar fading in over the expanded media.
+
+- `src/components/ui/scroll-expansion-hero.tsx` — the component, on the shadcn path
+  (`@/components/ui`), using `cn()` from `@/lib/utils` and framer-motion motion values.
+- Progress comes from the panel's **own** `getBoundingClientRect()`. The reference
+  implementation drives it from global `wheel`/`touchmove` handlers that call `preventDefault()`
+  and `window.scrollTo(0, 0)`; that only works while the component owns the page, and
+  mid-document it freezes the scroll. The page always scrolls natively here.
+- Each panel is an `<article aria-label>` (not `<section>`, which would inflate the page's
+  landmark count) with a 160vh scroll budget, and the sticky *Current availability* rail tracks
+  which one is active.
+- `React.lazy` + `Suspense` keep framer-motion (163 kB / 53 kB gzip) in its own chunk — the main
+  bundle stays at 355 kB / 123 kB gzip.
+- Reduced motion skips the expansion and renders the expanded state directly.
+
+## Component structure (shadcn)
+
+The project keeps shadcn's layout conventions without adopting the CLI, and it stays a plain
+Vite SPA — so `next` is deliberately *not* a dependency and components use `<img>` where the
+upstream examples use `next/image`:
+
+- `components.json` — style `new-york`, `rsc: false`, tailwind config `tailwind.config.js`,
+  css `src/index.css`, base colour `stone`, aliases for `components`, `ui`, `lib`, `utils`,
+  `hooks`, icon library `lucide`.
+- `@/*` → `./src/*` in **both** `vite.config.ts` (so the dev server resolves it) and
+  `tsconfig.json` (so TypeScript does). Changing one without the other breaks silently.
+- `src/components/ui/` is the default component path; `src/lib/utils.ts` exports `cn()`
+  (`clsx` + `tailwind-merge`).
+- Icons rendered on the page stay `iconify-icon` (Solar) — the project rule — while `lucide` is
+  declared because shadcn components expect it.
+
+## Material board — real assets
+
+The Atelier board ("One language, four finishes") is
+`src/components/three/RoomScene.tsx`. It ships as a procedural room so the page has something
+to show with no asset pipeline — and it upgrades to a real model by **dropping a file in**,
+with no code change:
+
+| Drop this | Where | Effect |
+| --- | --- | --- |
+| `room.glb` — Blender ▸ File ▸ Export ▸ glTF 2.0, format *glTF Binary*, *Apply Modifiers*, textures embedded | `src/components/three/models/` | replaces the procedural room; auto-fitted to 7 world units wide and dropped onto the floor |
+| `studio.hdr` — Poly Haven, CC0, 1k or 2k is plenty | `src/components/three/models/` | equirect HDRI becomes the scene environment — the single biggest realism lever for PBR materials |
+
+Both are discovered at build time with `import.meta.glob`, which means:
+
+- an empty folder costs nothing — the three loaders (GLTFLoader, DRACOLoader, KTX2Loader,
+  RGBELoader) are dynamic imports in their own chunks, requested only once a file is detected;
+- Draco geometry and KTX2 textures work with **no extra setup** — `three` carries its own
+  decoder copies and Vite emits them next to the lazy loader chunks;
+- a missing, unreadable or malformed file never breaks the page: the loader resolves `null`, the
+  procedural room stays, and the overlay reads `WebGL` instead of `Live model`.
+
+Knobs live in `src/components/three/room-model.ts`:
+
+- `fitRoomModel(scene, { width: 7, ground: 0, z: -0.6 })` — world width, floor height, depth;
+- `KEEP_MATERIAL_BOARD` — set `false` if the model brings its own floating finish board, so the
+  primitive board steps aside;
+- animated exports play automatically (first clip wins); the HDRI becomes `scene.environment`
+  while the room's own lights keep working.
+
+Wiring the path costs 530 kB → 606 kB raw (134 kB → 155 kB gzip) *in the lazy RoomScene chunk*;
+the main bundle is untouched. `src/components/three/models/README.md` repeats the drop-in table
+for whoever opens that folder first.
 
 ## Content
 

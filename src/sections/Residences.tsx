@@ -1,89 +1,97 @@
-import { useRef, useState } from 'react'
-import { gsap, revealOnEnter, useGsap } from '../lib/gsap'
-import { BUSINESS, RESIDENCES } from '../lib/site'
+import { Suspense, lazy, useEffect, useRef, useState } from "react";
+import { BUSINESS, RESIDENCES } from "../lib/site";
+
+/* framer-motion is ~50 kB gzip and only this section needs it, so the panel
+   loads on approach and a static frame stands in until it arrives. */
+const ScrollExpandMedia = lazy(
+  () => import("@/components/ui/scroll-expansion-hero"),
+);
+
+function PanelPlaceholder({
+  image,
+  title,
+  backdrop,
+}: {
+  image: string;
+  title: string;
+  backdrop: string;
+}) {
+  return (
+    <div className="relative h-[100svh] overflow-hidden">
+      <img
+        src={backdrop}
+        alt=""
+        aria-hidden="true"
+        className="absolute inset-0 h-full w-full object-cover"
+      />
+      <div className="absolute inset-0 bg-black/10" />
+      <div className="absolute left-1/2 top-1/2 h-[400px] w-[300px] max-w-[95vw] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl shadow-[0_0_50px_rgba(0,0,0,0.3)]">
+        <img src={image} alt={title} className="h-full w-full object-cover" />
+      </div>
+      <div className="relative z-10 flex h-full flex-col items-center justify-center px-6 text-center">
+        <h2 className="display mix-blend-difference text-white">{title}</h2>
+      </div>
+    </div>
+  );
+}
 
 /**
- * Section 3 — Featured Residences.
+ * Section — Featured Residences.
  *
- * A sticky "current availability" rail with working L/R arrows sits above a
- * list of project rows. GSAP draws each hairline in, lifts the rows as they
- * enter and parallaxes the imagery inside its frame; the zoom + grayscale
- * release stays on hover.
+ * Each project is a scroll-expansion panel: the image starts as a small centred
+ * card on a full-bleed backdrop and grows to fill the viewport as you scroll,
+ * with the title's two halves travelling apart and the project details fading
+ * in over the expanded media. A sticky "current availability" rail tracks
+ * whichever panel owns the viewport and jumps between them.
  */
 export default function Residences() {
-  const itemRefs = useRef<Array<HTMLLIElement | null>>([])
-  const [active, setActive] = useState(0)
+  const panelRefs = useRef<Array<HTMLDivElement | null>>([]);
+  const [active, setActive] = useState(0);
 
-  const scope = useGsap<HTMLElement>((el, { reduced }) => {
-    const rows = [...el.querySelectorAll<HTMLElement>('[data-row]')]
-    const headers = [...el.querySelectorAll<HTMLElement>('[data-reveal]')]
+  /* Keep the rail's index in step with the panel filling the viewport. */
+  useEffect(() => {
+    const nodes = panelRefs.current.filter((node): node is HTMLDivElement =>
+      Boolean(node),
+    );
+    if (!nodes.length || typeof IntersectionObserver === "undefined") return;
 
-    /* Rows are revealed by intersection; the scrubs below stay on ScrollTrigger. */
-    gsap.set([...rows, ...headers], { opacity: 0, y: 30 })
-    const stopReveal = revealOnEnter(
-      [...rows, ...headers],
-      (node) =>
-        gsap.to(node, { opacity: 1, y: 0, duration: 1, ease: 'power3.out', overwrite: 'auto' }),
-      (node) => gsap.set(node, { opacity: 1, y: 0 }),
-      reduced,
-    )
+    const observer = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const index = nodes.indexOf(entry.target as HTMLDivElement);
+          if (index >= 0) setActive(index);
+        }
+      },
+      { rootMargin: "-45% 0px -45% 0px", threshold: 0 },
+    );
 
-    if (reduced) return stopReveal
-
-    rows.forEach((row) => {
-      const image = row.querySelector<HTMLElement>('[data-row-image]')
-      const line = row.querySelector<HTMLElement>('[data-rule]')
-
-      if (line) {
-        gsap.fromTo(
-          line,
-          { scaleX: 0 },
-          {
-            scaleX: 1,
-            duration: 1.2,
-            ease: 'power3.out',
-            scrollTrigger: { trigger: row, start: 'top 92%', once: true },
-          },
-        )
-      }
-
-      if (image) {
-        gsap.fromTo(
-          image,
-          { yPercent: -6 },
-          {
-            yPercent: 6,
-            ease: 'none',
-            scrollTrigger: { trigger: row, start: 'top bottom', end: 'bottom top', scrub: true },
-          },
-        )
-      }
-    })
-
-    return stopReveal
-  }, [])
+    nodes.forEach((node) => observer.observe(node));
+    return () => observer.disconnect();
+  }, []);
 
   const jump = (direction: 1 | -1) => {
-    const next = (active + direction + RESIDENCES.length) % RESIDENCES.length
-    setActive(next)
-    itemRefs.current[next]?.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  }
+    const next = (active + direction + RESIDENCES.length) % RESIDENCES.length;
+    setActive(next);
+    panelRefs.current[next]?.scrollIntoView({
+      behavior: "smooth",
+      block: "start",
+    });
+  };
 
   return (
-    <section ref={scope} id="projects" className="bg-bone pb-16 md:pb-20">
+    <section id="projects" className="bg-bone pb-16 md:pb-20">
       <div className="wrap pt-16 md:pt-20">
         <div className="flex flex-col gap-5 pb-8 md:flex-row md:items-end md:justify-between">
           <div>
-            <p data-reveal className="lbl text-ink/40">
-              Selected work
-            </p>
-            <h2 data-reveal className="headline mt-4 text-ink">
+            <p className="lbl text-ink/40">Selected work</p>
+            <h2 className="headline mt-4 text-ink">
               Featured <span className="accent">Residences</span>
             </h2>
           </div>
-          <p data-reveal className="lede text-ink/60">
-            Apartments, duplexes and workspaces delivered end to end — drawings, joinery,
-            finishes and the after-service visit nobody else offers.
+          <p className="lede text-ink/60">
+            Four rooms we finished this year. Scroll to open each one — the
+            panel expands to fill the screen.
           </p>
         </div>
       </div>
@@ -94,7 +102,8 @@ export default function Residences() {
           <p className="lbl text-ink/50">Current availability</p>
           <div className="flex items-center gap-5 sm:gap-7">
             <span className="lbl num text-ink/40">
-              {RESIDENCES[active].index} / {String(RESIDENCES.length).padStart(2, '0')}
+              {RESIDENCES[active].index} /{" "}
+              {String(RESIDENCES.length).padStart(2, "0")}
             </span>
             <div className="flex items-center gap-2">
               <button
@@ -103,7 +112,11 @@ export default function Residences() {
                 aria-label="Previous residence"
                 className="icon-btn rounded-full"
               >
-                <iconify-icon icon="solar:arrow-left-linear" width="16" height="16" />
+                <iconify-icon
+                  icon="solar:arrow-left-linear"
+                  width="16"
+                  height="16"
+                />
               </button>
               <button
                 type="button"
@@ -111,83 +124,110 @@ export default function Residences() {
                 aria-label="Next residence"
                 className="icon-btn rounded-full"
               >
-                <iconify-icon icon="solar:arrow-right-linear" width="16" height="16" />
+                <iconify-icon
+                  icon="solar:arrow-right-linear"
+                  width="16"
+                  height="16"
+                />
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      <ul className="wrap">
+      {/* Expansion panels */}
+      <div>
         {RESIDENCES.map((residence, i) => (
-          <li
+          <div
             key={residence.title}
-            data-row
             ref={(node) => {
-              itemRefs.current[i] = node
+              panelRefs.current[i] = node;
             }}
-            className={`group transition-colors duration-700 hover:bg-shell ${
-              active === i ? 'bg-shell' : ''
-            }`}
           >
-            <hr data-rule className="rule" />
-            <div className="grid gap-5 py-6 md:grid-cols-12 md:gap-8 md:py-8">
-              <div className="md:col-span-4">
-                <div className="flex items-baseline gap-4">
-                  <span className="lbl num text-ink/35">{residence.index}</span>
-                  <span className="lbl num text-ink/35">{residence.year}</span>
+            <Suspense
+              fallback={
+                <PanelPlaceholder
+                  image={residence.image}
+                  backdrop={residence.backdrop}
+                  title={residence.title}
+                />
+              }
+            >
+              <ScrollExpandMedia
+                mediaType="image"
+                mediaSrc={residence.image}
+                bgImageSrc={residence.backdrop}
+                title={residence.title}
+                date={`${residence.index} — ${residence.year}`}
+                scrollToExpand="Scroll to expand"
+                textBlend
+                scrollLength={160}
+              >
+                <div className="wrap pb-7 pt-10">
+                  <div className="border border-white/15 bg-inkdeep/50 p-5 backdrop-blur-md sm:p-6">
+                    <div className="grid gap-5 md:grid-cols-12 md:gap-8">
+                      <div className="md:col-span-7">
+                        <p className="lbl text-chalk/60">
+                          {residence.location}
+                        </p>
+                        <p className="copy mt-2 max-w-[46ch] text-[13.5px] text-chalk/80">
+                          {residence.summary}
+                        </p>
+                      </div>
+
+                      <div className="md:col-span-5">
+                        <ul className="flex flex-wrap gap-x-6 gap-y-2">
+                          {[
+                            {
+                              icon: "solar:maximize-square-linear",
+                              label: residence.area,
+                            },
+                            {
+                              icon: "solar:bed-linear",
+                              label: residence.config,
+                            },
+                            {
+                              icon: "solar:tag-price-linear",
+                              label: residence.price,
+                            },
+                          ].map((fact) => (
+                            <li
+                              key={fact.label}
+                              className="flex items-center gap-2.5"
+                            >
+                              <iconify-icon
+                                icon={fact.icon}
+                                width="17"
+                                height="17"
+                                class="text-chalk/55"
+                              />
+                              <span className="lbl text-chalk/80">
+                                {fact.label}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+
+                        <a
+                          href={BUSINESS.whatsapp}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="btn on-ink mt-5"
+                        >
+                          Enquire about this home
+                          <span className="ar" aria-hidden="true">
+                            →
+                          </span>
+                        </a>
+                      </div>
+                    </div>
+                  </div>
                 </div>
-
-                <h3 className="subhead mt-4 text-ink">{residence.title}</h3>
-                <p className="lbl mt-3 text-ink/45">{residence.location}</p>
-                <p className="copy mt-3 text-[13.5px]">{residence.summary}</p>
-
-                <ul className="mt-5 space-y-2.5">
-                  {[
-                    { icon: 'solar:maximize-square-linear', label: residence.area },
-                    { icon: 'solar:bed-linear', label: residence.config },
-                    { icon: 'solar:tag-price-linear', label: residence.price },
-                  ].map((fact) => (
-                    <li key={fact.label} className="flex items-center gap-3">
-                      <iconify-icon icon={fact.icon} width="18" height="18" class="text-ink/40" />
-                      <span className="lbl text-ink/60">{fact.label}</span>
-                    </li>
-                  ))}
-                </ul>
-
-                <a
-                  href={BUSINESS.whatsapp}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="tlink mt-6"
-                >
-                  Enquire about this home
-                  <span className="ar" aria-hidden="true">
-                    →
-                  </span>
-                </a>
-              </div>
-
-              <div className="md:col-span-8">
-                <div className="relative overflow-hidden bg-blush">
-                  <img
-                    data-row-image
-                    src={residence.image}
-                    alt={`${residence.title} — ${residence.location}`}
-                    loading="lazy"
-                    decoding="async"
-                    className="h-[250px] w-full scale-[1.08] object-cover grayscale-[20%] transition-[filter] duration-1000 ease-smooth group-hover:grayscale-0 sm:h-[300px] md:h-[360px]"
-                  />
-                  <div className="pointer-events-none absolute inset-0 bg-ink/0 transition-colors duration-700 group-hover:bg-ink/5" />
-                </div>
-              </div>
-            </div>
-          </li>
+              </ScrollExpandMedia>
+            </Suspense>
+          </div>
         ))}
-        <li aria-hidden="true">
-          <hr className="rule" />
-        </li>
-      </ul>
+      </div>
     </section>
-  )
+  );
 }

@@ -89,6 +89,8 @@ export type Residence = {
   config: string
   price: string
   image: string
+  /** Full-bleed backdrop the scroll-expansion panel starts on. */
+  backdrop: string
 }
 
 export const RESIDENCES: Residence[] = [
@@ -103,6 +105,7 @@ export const RESIDENCES: Residence[] = [
     config: '3 BHK',
     price: 'On request',
     image: IMAGES.residenceObsidian,
+    backdrop: IMAGES.galleryKitchen,
   },
   {
     index: '02',
@@ -115,6 +118,7 @@ export const RESIDENCES: Residence[] = [
     config: '4 BHK Duplex',
     price: 'On request',
     image: IMAGES.residenceGarden,
+    backdrop: IMAGES.galleryBedroom,
   },
   {
     index: '03',
@@ -127,6 +131,7 @@ export const RESIDENCES: Residence[] = [
     config: '4 BHK',
     price: 'On request',
     image: IMAGES.residenceTerracotta,
+    backdrop: IMAGES.philosophy,
   },
   {
     index: '04',
@@ -139,6 +144,7 @@ export const RESIDENCES: Residence[] = [
     config: 'Workspace',
     price: 'On request',
     image: IMAGES.residenceStudio,
+    backdrop: IMAGES.hero,
   },
 ]
 

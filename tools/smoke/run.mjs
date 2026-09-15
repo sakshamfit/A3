@@ -71,6 +71,10 @@ if (typeof window.matchMedia !== 'function') {
 }
 global.matchMedia = window.matchMedia
 
+/* Vite's `import.meta.glob` is stubbed by tools/smoke/build.mjs; an empty
+   result stands in for "no 3D model dropped into src/components/three/models". */
+globalThis.__viteGlob = () => ({})
+
 const errors = []
 const origError = console.error
 console.error = (...args) => { errors.push(args.join(' ')) }
@@ -133,7 +137,35 @@ ok('phone + tel link', text.includes('094515 46780') && !!doc.querySelector('a[h
 ok('whatsapp CTA', !!doc.querySelector('a[href^="https://wa.me/919451546780"]'))
 ok('4.8 / 174 reviews', text.includes('4.8') && text.includes('174'))
 ok('review quotes verbatim', text.includes('absolutely loved the service') && text.includes('Good looking for my design in my home'))
-ok('residence rows', doc.querySelectorAll('#projects [data-row]').length === 4)
+const panels = doc.querySelectorAll('#projects [data-expand-panel]')
+ok('four scroll-expansion residence panels', panels.length === 4, `${panels.length}`)
+ok('panel placeholder renders while framer-motion lazy-loads', !!doc.querySelector('#projects .h-\\[100svh\\]') || doc.querySelectorAll('#projects [data-expand-frame]').length === 4)
+ok('each panel pairs a media image with a backdrop', doc.querySelectorAll('#projects [data-expand-media]').length === 4 && doc.querySelectorAll('#projects img[alt=""]').length >= 4)
+const uiSource = readFileSync('./src/components/ui/scroll-expansion-hero.tsx', 'utf8')
+/* Strip comments before source assertions — prose should not trip code checks. */
+const uiCode = uiSource.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
+ok('component lives on the shadcn path and uses @/lib/utils', /from '@\/lib\/utils'/.test(uiSource) && existsSync('./src/components/ui/scroll-expansion-hero.tsx'))
+ok('components.json declares the ui alias', (() => { const c = JSON.parse(readFileSync('./components.json', 'utf8')); return c.aliases.ui === '@/components/ui' })())
+ok('component does NOT hijack wheel / touch / document scroll', !/addEventListener\(\s*['"](wheel|touchmove|touchstart)['"]/.test(uiCode) && !/window\.scrollTo/.test(uiCode) && !/preventDefault/.test(uiCode))
+ok('expansion is scroll-driven and clamped', /getBoundingClientRect\(\)/.test(uiCode) && /clamp01/.test(uiCode))
+ok('expansion uses motion values, not per-frame state', /useMotionValue/.test(uiCode) && /useSpring/.test(uiCode) && /useTransform/.test(uiCode))
+ok('panel is lazy-loaded (framer-motion off the critical path)', /lazy\(\s*\(\s*\)\s*=>\s*import\(\s*['"]@\/components\/ui\/scroll-expansion-hero/.test(readFileSync('./src/sections/Residences.tsx', 'utf8')))
+
+/* ------------------------------------------- Atelier real-asset upgrade path */
+const roomModel = readFileSync('./src/components/three/room-model.ts', 'utf8')
+const roomScene = readFileSync('./src/components/three/RoomScene.tsx', 'utf8')
+ok('real .glb is discovered, not hard-coded', /import\.meta\.glob\(\s*["']\.\/models\//.test(roomModel) && /ROOM_MODEL_URL/.test(roomModel))
+ok(
+  'three loaders stay off the critical path',
+  /import\(\s*["']three\/examples\/jsm\/loaders\/GLTFLoader\.js["']\s*\)/.test(roomModel) &&
+    /import\(\s*["']three\/examples\/jsm\/loaders\/RGBELoader\.js["']\s*\)/.test(roomModel) &&
+    !/^\s*import\s+\{[^}]*\}\s+from\s+["']three\/examples/m.test(roomModel),
+)
+ok('no model -> procedural room, no error', /if \(!url\) return null/.test(roomModel) && /procedural\.visible = false/.test(roomScene))
+ok('procedural room lives in one swappable group', /const procedural = new THREE\.Group/.test(roomScene) && /procedural\.add\(/.test(roomScene))
+ok('imported room is auto-fitted and disposed', /export function fitRoomModel/.test(roomModel) && /export function disposeRoomAsset/.test(roomModel) && /room\.add\(fitRoomModel\(model\.scene\)\)/.test(roomScene))
+ok('asset drop-in is documented next to the folder', existsSync('./src/components/three/models/README.md'))
+ok('panels are articles, not extra page landmarks', doc.querySelectorAll('#projects article[aria-label]').length === 4)
 ok('gallery tiles', doc.querySelectorAll('#gallery [data-tile]').length === 4)
 ok('material list items', doc.querySelectorAll('#atelier button[aria-pressed]').length === 4)
 ok('icons as shadow svg', [...doc.querySelectorAll('iconify-icon')].filter((el) => el.shadowRoot?.querySelector('svg')).length > 30, `${[...doc.querySelectorAll('iconify-icon')].length} icons`)
@@ -171,14 +203,19 @@ ok('philosophy amenities overlay the figure (sm+) with a stacked fallback', !!ph
 ok('reviews pinned viewport is filled (facts strip)', /Serving/.test(text) && /Gorilla|Residential & commercial/.test(text))
 const allClasses = [...doc.querySelectorAll('*')].map((el) => el.getAttribute('class') || '').join(' ')
 ok('hero trimmed to 82vh', /min-h-\[82vh\]/.test(allClasses))
-ok('residence rows tightened', /\bpy-6\b/.test(allClasses))
+ok('residence detail bars are tightened', /pt-10/.test(doc.querySelector('#projects [data-expand-panel]')?.innerHTML || '') )
 ok('gallery rows tightened to 320px', /grid-auto-rows:\s*320px/.test(css))
 ok('transform scroll budget reduced', /h-\[150vh\]/.test(allClasses) && /md:h-\[165vh\]/.test(allClasses))
 ok('reviews scroll budget reduced', /md:h-\[185vh\]/.test(allClasses))
+ok('residence panels use a bounded scroll budget (160vh)', /height:\s*160vh/.test(doc.querySelector('#projects [data-expand-panel]')?.getAttribute('style') || ''), doc.querySelector('#projects [data-expand-panel]')?.getAttribute('style') || 'no panel style')
 
-const source = ['src/App.tsx', 'src/components/Marquee.tsx', 'src/components/Navbar.tsx', 'src/sections/*.tsx']
-  .flatMap((f) => (f.includes('*') ? readdirSync('./src/sections').map((x) => `src/sections/${x}`) : [f]))
-  .map((f) => readFileSync(f, 'utf8')).join('\n')
+const source = [
+  'src/App.tsx',
+  'src/components/Marquee.tsx',
+  'src/components/Navbar.tsx',
+  ...readdirSync('./src/components/ui').map((f) => `src/components/ui/${f}`),
+  ...readdirSync('./src/sections').map((f) => `src/sections/${f}`),
+].filter((f) => f.endsWith('.tsx')).map((f) => readFileSync(f, 'utf8')).join('\n')
 const oversized = source.match(/\b(mt|mb|my)-(1[246]|2[048])\b|\bgap-16\b|auto-rows-\[4\d\dpx\]|h-\[[6-9]\d\dpx\]/g) || []
 ok('no oversized spacing utilities in source', oversized.length === 0, oversized.slice(0, 6).join(', '))
 
@@ -193,7 +230,8 @@ ok('text-wrap pretty/balance', /text-wrap:balance/.test(flat) && /text-wrap:pret
 ok('css typography reaches headings', (cs('h1', 'fontFamily') || '').includes('Archivo'), cs('h1', 'fontFamily'))
 ok('css: selection stone-800 / white', /::selection\{[^}]*background-color:rgb\(41\s*37\s*36[^}]*color:rgb\(255\s*255\s*255/.test(flat))
 ok('css: image-reveal clip-path + source curve', /clip-path:\s*inset\(0 0 0 0\)/.test(css) && /cubic-bezier\(0?\.16,\s*1,\s*0?\.3,\s*1\)/.test(css))
-ok('css: grayscale 20 / 30 / 100', /grayscale\(20%\)/.test(css) && /grayscale\(30%\)/.test(css) && /grayscale\(100%\)/.test(css))
+ok('css: gallery grayscale 30% -> colour', /grayscale\(30%\)/.test(css) && /grayscale\(100%\)/.test(css))
+ok('expanding residence media is full colour', !/grayscale/.test(doc.querySelector('[data-expand-media]')?.className || ''))
 ok('css: blueprint filter for shell wipe', /\.blueprint\{filter:/.test(flat))
 ok('css: gsap entrance states guarded', /\.gsap-ready\[data-reveal\]\{opacity:0/.test(flat))
 

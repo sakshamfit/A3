@@ -375,17 +375,6 @@
     background: var(--bone);
   }
 
-  /* ------------------------------------------------------------- imagery */
-  .gw {
-    filter: grayscale(1) contrast(1.05);
-  }
-  .gw-30 {
-    filter: grayscale(0.3) contrast(1.02);
-  }
-  .gw-20 {
-    filter: grayscale(0.2) contrast(1.02);
-  }
-
   /* Philosophy reveal — clip path + the source curve */
   .image-reveal {
     clip-path: inset(0 0 0 0);

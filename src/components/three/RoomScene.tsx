@@ -2,6 +2,15 @@ import { useEffect, useRef, useState } from 'react'
 import * as THREE from 'three'
 import { MATERIALS } from '../../lib/site'
 import { prefersReducedMotion } from '../../lib/gsap'
+import {
+  KEEP_MATERIAL_BOARD,
+  ROOM_ENV_URL,
+  ROOM_MODEL_URL,
+  disposeRoomAsset,
+  fitRoomModel,
+  loadRoomEnv,
+  loadRoomModel,
+} from './room-model'
 
 interface RoomSceneProps {
   /** Index of the material currently highlighted in the DOM list. */
@@ -26,6 +35,8 @@ export default function RoomScene({ activeMaterial, className = '' }: RoomSceneP
   const activeRef = useRef<number | null>(activeMaterial)
   const progressRef = useRef(0)
   const [available, setAvailable] = useState(true)
+  /** 'model' once a real .glb sits in ./models/, 'procedural' when it does not. */
+  const [assetState, setAssetState] = useState<'probing' | 'model' | 'procedural'>('probing')
 
   useEffect(() => {
     activeRef.current = activeMaterial
@@ -104,6 +115,11 @@ export default function RoomScene({ activeMaterial, className = '' }: RoomSceneP
     const room = new THREE.Group()
     scene.add(room)
 
+    /* Every primitive-built part of the room lives in one group, so a real
+       .glb dropped into ./models/ can take its place in a single swap. */
+    const procedural = new THREE.Group()
+    room.add(procedural)
+
     const mat = (color: number, roughness: number, metalness = 0.04) =>
       new THREE.MeshStandardMaterial({ color, roughness, metalness })
 
@@ -111,18 +127,18 @@ export default function RoomScene({ activeMaterial, className = '' }: RoomSceneP
     const floor = new THREE.Mesh(new THREE.PlaneGeometry(22, 22), mat(0x2c2825, 0.62))
     floor.rotation.x = -Math.PI / 2
     floor.receiveShadow = true
-    room.add(floor)
+    procedural.add(floor)
 
     const backWall = new THREE.Mesh(new THREE.PlaneGeometry(22, 9), mat(0x1d1a18, 0.95))
     backWall.position.set(0, 4.5, -5)
     backWall.receiveShadow = true
-    room.add(backWall)
+    procedural.add(backWall)
 
     const sideWall = new THREE.Mesh(new THREE.PlaneGeometry(14, 9), mat(0x221f1c, 0.95))
     sideWall.position.set(-5.4, 4.5, 0)
     sideWall.rotation.y = Math.PI / 2
     sideWall.receiveShadow = true
-    room.add(sideWall)
+    procedural.add(sideWall)
 
     /* aperture — the only light source in the room */
     const glow = new THREE.Mesh(
@@ -130,7 +146,7 @@ export default function RoomScene({ activeMaterial, className = '' }: RoomSceneP
       new THREE.MeshBasicMaterial({ color: 0xffe6bd }),
     )
     glow.position.set(1.9, 2.9, -4.94)
-    room.add(glow)
+    procedural.add(glow)
 
     const frameMaterial = mat(0x141414, 0.5, 0.35)
     const frameTop = new THREE.Mesh(new THREE.BoxGeometry(3.6, 0.1, 0.12), frameMaterial)
@@ -143,7 +159,7 @@ export default function RoomScene({ activeMaterial, className = '' }: RoomSceneP
     frameRight.position.x = 3.65
     const mullion = new THREE.Mesh(new THREE.BoxGeometry(0.06, 4.6, 0.08), frameMaterial)
     mullion.position.set(1.9, 2.9, -4.9)
-    room.add(frameTop, frameBottom, frameLeft, frameRight, mullion)
+    procedural.add(frameTop, frameBottom, frameLeft, frameRight, mullion)
 
     /* furniture silhouettes */
     const add = (
@@ -155,7 +171,7 @@ export default function RoomScene({ activeMaterial, className = '' }: RoomSceneP
       mesh.rotation.set(...rotation)
       mesh.castShadow = true
       mesh.receiveShadow = true
-      room.add(mesh)
+      procedural.add(mesh)
       return mesh
     }
 
@@ -238,7 +254,7 @@ export default function RoomScene({ activeMaterial, className = '' }: RoomSceneP
     sunPatch.rotation.x = -Math.PI / 2
     sunPatch.rotation.z = -0.42
     sunPatch.position.set(0.2, 0.012, 1.1)
-    room.add(sunPatch)
+    procedural.add(sunPatch)
 
     /* --------------------------------------------------------- lighting */
     scene.add(new THREE.HemisphereLight(0x8ea3b8, 0x151312, 0.42))
@@ -304,12 +320,15 @@ export default function RoomScene({ activeMaterial, className = '' }: RoomSceneP
 
     /* ------------------------------------------------------------- loop */
     const clock = new THREE.Clock()
+    const mixers: THREE.AnimationMixer[] = []
     let raf = 0
     const highlight = new THREE.Color(0xffcf95)
     const swatchColors = MATERIALS.map((material) => new THREE.Color(material.swatch))
 
     const render = (time: number) => {
       const progress = progressRef.current
+
+      mixers.forEach((mixer) => mixer.update(0.016))
 
       pointer.x += (target.x - pointer.x) * 0.06
       pointer.y += (target.y - pointer.y) * 0.06
@@ -341,6 +360,40 @@ export default function RoomScene({ activeMaterial, className = '' }: RoomSceneP
       renderer.render(scene, camera)
     }
 
+    /* ------------------------------------------------- real-asset upgrade */
+    let disposed = false
+
+    void (async () => {
+      if (!ROOM_MODEL_URL && !ROOM_ENV_URL) {
+        setAssetState('procedural')
+        return
+      }
+      const [model, env] = await Promise.all([
+        loadRoomModel(renderer, ROOM_MODEL_URL),
+        loadRoomEnv(renderer, ROOM_ENV_URL),
+      ])
+      if (disposed) {
+        if (model) disposeRoomAsset(model.scene)
+        env?.dispose()
+        return
+      }
+      if (env) scene.environment = env
+      if (!model) {
+        setAssetState('procedural')
+        return
+      }
+      procedural.visible = false
+      if (!KEEP_MATERIAL_BOARD) board.visible = false
+      room.add(fitRoomModel(model.scene))
+      if (model.animations.length) {
+        const mixer = new THREE.AnimationMixer(model.scene)
+        model.animations.forEach((clip) => mixer.clipAction(clip).play())
+        mixers.push(mixer)
+      }
+      setAssetState('model')
+      if (reduced) render(0)
+    })()
+
     if (reduced) {
       render(0)
     } else {
@@ -354,6 +407,7 @@ export default function RoomScene({ activeMaterial, className = '' }: RoomSceneP
 
     /* ---------------------------------------------------------- cleanup */
     return () => {
+      disposed = true
       cancelAnimationFrame(raf)
       observer?.disconnect()
       resizeObserver?.disconnect()
@@ -395,7 +449,9 @@ export default function RoomScene({ activeMaterial, className = '' }: RoomSceneP
       <div className="pointer-events-none absolute left-0 top-0 flex h-full w-full flex-col justify-between p-6 sm:p-8">
         <div className="flex items-start justify-between gap-6">
           <p className="lbl text-chalk/45">Material board · live</p>
-          <p className="lbl text-chalk/45">{available ? 'WebGL' : 'Static'}</p>
+          <p className="lbl text-chalk/45">
+            {!available ? 'Static' : assetState === 'model' ? 'Live model' : 'WebGL'}
+          </p>
         </div>
         <p className="lbl max-w-[22ch] text-chalk/40">
           Drag your cursor across the room — the board follows, and the scroll closes the camera.
