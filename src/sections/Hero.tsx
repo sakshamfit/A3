@@ -101,13 +101,29 @@ export default function Hero() {
       console.warn('A3: hero entrance animation unavailable — content shown as-is.')
       showEverything()
     }
+
+    /* Failsafe: the intro is decorative, the copy is not. If anything above
+       left it hidden, show it after a beat. */
+    const failsafe = window.setTimeout(() => {
+      el.querySelectorAll<HTMLElement>('[data-reveal]').forEach((node) => {
+        if (Number(window.getComputedStyle(node).opacity) < 0.9) {
+          gsap.set(node, { opacity: 1, y: 0 })
+        }
+      })
+      if (Number(window.getComputedStyle(heading).opacity) < 0.9) {
+        gsap.set(heading, { opacity: 1 })
+      }
+      gsap.set(media, { opacity: 1, scale: 1 })
+    }, 2000)
+
+    return () => window.clearTimeout(failsafe)
   }, [])
 
   return (
     <section
       ref={scope}
       id="top"
-      className="relative flex min-h-[86vh] flex-col justify-end overflow-hidden bg-inkdeep"
+      className="relative flex min-h-[82vh] flex-col justify-end overflow-hidden bg-inkdeep"
     >
       {/* Media layers: image → gradient → content */}
       <div data-hero-media className="absolute inset-0">
@@ -123,7 +139,7 @@ export default function Hero() {
       <div data-hero-overlay className="absolute inset-0 bg-inkdeep/10" />
 
       <div className="relative z-10 flex flex-1 flex-col justify-end">
-        <div className="wrap pt-24 md:pt-28">
+        <div className="wrap pt-20 md:pt-24">
           <div data-reveal="fade" className="flex flex-wrap items-center gap-x-6 gap-y-3 text-chalk/70">
             <span className="lbl flex items-center gap-2">
               <iconify-icon icon="solar:star-bold" width="12" height="12" class="text-chalk/70" />
@@ -135,7 +151,7 @@ export default function Hero() {
             <span className="lbl">{BUSINESS.locality}</span>
           </div>
 
-          <h1 data-hero-heading data-reveal="mask" className="display mt-6 max-w-[18ch] text-bone">
+          <h1 data-hero-heading data-reveal="mask" className="display mt-5 max-w-[18ch] text-bone">
             Interiors <span className="accent">sculpted</span> around how you live
           </h1>
           <p className="mt-4 max-w-[46ch] font-serif text-[clamp(15px,1.4vw,20px)] italic leading-snug text-chalk/70">

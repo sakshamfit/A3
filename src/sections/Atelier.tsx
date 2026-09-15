@@ -1,5 +1,5 @@
 import { Suspense, lazy, useEffect, useRef, useState } from 'react'
-import { gsap, useGsap } from '../lib/gsap'
+import { gsap, revealIn, useGsap } from '../lib/gsap'
 import { MATERIALS } from '../lib/site'
 
 /* Three.js is ~600 kB — it is fetched only once the section is approached. */
@@ -58,10 +58,9 @@ export default function Atelier() {
   }, [])
 
   const scope = useGsap<HTMLElement>((el, { reduced }) => {
-    if (reduced) {
-      gsap.set(el.querySelectorAll('[data-reveal]'), { opacity: 1, y: 0 })
-      return
-    }
+    const stopReveal = revealIn(el, reduced)
+
+    if (reduced) return stopReveal
 
     gsap.fromTo(
       el.querySelectorAll('[data-rule]'),
@@ -74,6 +73,8 @@ export default function Atelier() {
         scrollTrigger: { trigger: el, start: 'top 70%', once: true },
       },
     )
+
+    return stopReveal
   }, [])
 
   return (
@@ -98,7 +99,7 @@ export default function Atelier() {
         <div className="mt-10 grid gap-7 lg:grid-cols-12">
           {/* Three.js room */}
           <div ref={hostRef} data-reveal="fade" className="lg:col-span-7">
-            <div className="h-[330px] w-full border border-white/10 sm:h-[400px] lg:h-[470px]">
+            <div className="h-[330px] w-full border border-white/10 sm:h-[380px] lg:h-[430px]">
               {mountScene ? (
                 <Suspense fallback={<SceneSkeleton />}>
                   <RoomScene activeMaterial={active} className="h-full w-full" />
@@ -110,7 +111,7 @@ export default function Atelier() {
           </div>
 
           {/* DOM controls for the 3D board */}
-          <div className="lg:col-span-5">
+          <div className="flex flex-col lg:col-span-5">
             <ul>
               {MATERIALS.map((material, i) => (
                 <li key={material.name}>
@@ -154,7 +155,7 @@ export default function Atelier() {
               <hr data-rule className="rule" />
             </ul>
 
-            <p className="copy mt-6 text-[12.5px]">
+            <p className="copy mt-6 text-[12.5px] lg:mt-auto lg:pt-6">
               The room above is lit through a single aperture — the way we plan lighting on site.
               Scroll to walk the camera in, then move your cursor across the finishes.
             </p>

@@ -1,4 +1,4 @@
-import { gsap, useGsap } from '../lib/gsap'
+import { gsap, revealOnEnter, useGsap } from '../lib/gsap'
 import { GALLERY } from '../lib/site'
 
 /**
@@ -10,26 +10,32 @@ import { GALLERY } from '../lib/site'
  */
 export default function Gallery() {
   const scope = useGsap<HTMLElement>((el, { reduced }) => {
-    if (reduced) {
-      gsap.set(el.querySelectorAll('[data-reveal]'), { opacity: 1, y: 0 })
-      return
-    }
+    const tiles = [...el.querySelectorAll<HTMLElement>('[data-tile]')]
+    const headings = [...el.querySelectorAll<HTMLElement>('[data-reveal]')]
 
-    el.querySelectorAll<HTMLElement>('[data-tile]').forEach((tile) => {
-      const image = tile.querySelector<HTMLElement>('[data-tile-image]')
-      const speed = Number(tile.dataset.speed ?? 0)
+    gsap.set(tiles, { opacity: 0, clipPath: 'inset(14% 0% 14% 0%)' })
+    gsap.set(headings, { opacity: 0, y: 22 })
 
-      gsap.fromTo(
-        tile,
-        { opacity: 0, clipPath: 'inset(14% 0% 14% 0%)' },
-        {
+    const stopReveal = revealOnEnter(
+      [...tiles, ...headings],
+      (node) =>
+        gsap.to(node, {
           opacity: 1,
+          y: 0,
           clipPath: 'inset(0% 0% 0% 0%)',
           duration: 1.2,
           ease: 'power3.out',
-          scrollTrigger: { trigger: tile, start: 'top 88%', once: true },
-        },
-      )
+          overwrite: 'auto',
+        }),
+      (node) => gsap.set(node, { opacity: 1, y: 0, clipPath: 'inset(0% 0% 0% 0%)' }),
+      reduced,
+    )
+
+    if (reduced) return stopReveal
+
+    tiles.forEach((tile) => {
+      const image = tile.querySelector<HTMLElement>('[data-tile-image]')
+      const speed = Number(tile.dataset.speed ?? 0)
 
       if (image && speed) {
         gsap.fromTo(
@@ -43,6 +49,8 @@ export default function Gallery() {
         )
       }
     })
+
+    return stopReveal
   }, [])
 
   return (
@@ -61,7 +69,7 @@ export default function Gallery() {
           </p>
         </div>
 
-        <div className="mt-10 grid grid-cols-1 gap-3 md:auto-rows-[330px] md:grid-cols-3">
+        <div className="mt-10 grid grid-cols-1 gap-3 md:auto-rows-[320px] md:grid-cols-3">
           {GALLERY.map((item, i) => (
             <div
               key={item.src}

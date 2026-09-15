@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { gsap, useGsap } from '../lib/gsap'
+import { gsap, revealOnEnter, useGsap } from '../lib/gsap'
 import { BUSINESS, RESIDENCES } from '../lib/site'
 
 /**
@@ -15,26 +15,24 @@ export default function Residences() {
   const [active, setActive] = useState(0)
 
   const scope = useGsap<HTMLElement>((el, { reduced }) => {
-    if (reduced) {
-      gsap.set(el.querySelectorAll('[data-reveal]'), { opacity: 1, y: 0 })
-      return
-    }
+    const rows = [...el.querySelectorAll<HTMLElement>('[data-row]')]
+    const headers = [...el.querySelectorAll<HTMLElement>('[data-reveal]')]
 
-    el.querySelectorAll<HTMLElement>('[data-row]').forEach((row) => {
+    /* Rows are revealed by intersection; the scrubs below stay on ScrollTrigger. */
+    gsap.set([...rows, ...headers], { opacity: 0, y: 30 })
+    const stopReveal = revealOnEnter(
+      [...rows, ...headers],
+      (node) =>
+        gsap.to(node, { opacity: 1, y: 0, duration: 1, ease: 'power3.out', overwrite: 'auto' }),
+      (node) => gsap.set(node, { opacity: 1, y: 0 }),
+      reduced,
+    )
+
+    if (reduced) return stopReveal
+
+    rows.forEach((row) => {
       const image = row.querySelector<HTMLElement>('[data-row-image]')
       const line = row.querySelector<HTMLElement>('[data-rule]')
-
-      gsap.fromTo(
-        row,
-        { opacity: 0, y: 34 },
-        {
-          opacity: 1,
-          y: 0,
-          duration: 1,
-          ease: 'power3.out',
-          scrollTrigger: { trigger: row, start: 'top 88%', once: true },
-        },
-      )
 
       if (line) {
         gsap.fromTo(
@@ -61,6 +59,8 @@ export default function Residences() {
         )
       }
     })
+
+    return stopReveal
   }, [])
 
   const jump = (direction: 1 | -1) => {

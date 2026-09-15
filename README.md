@@ -57,6 +57,17 @@ Want a rosier or paler pink? Edit those four values — nothing else references 
 A source-level audit runs in the test harness and fails if an oversized spacing utility
 (`mt-16`, `gap-16`, `auto-rows-[4xx px]`, `h-[6xx px]`) creeps back in.
 
+**Second density pass.** Nothing is allowed to leave a column half empty:
+
+- Philosophy dropped its sticky 3-column rail (the empty pink it left beside the narrative) for
+  three full-width rows, with the amenity list riding inside the figure frame as a translucent
+  strip
+- Reviews packs a facts strip under the card track, so the pinned viewport has no dead space;
+  cards are `min(46vh, 400px)` tall and the section budget is down to 185 vh
+- Transform is down to 150 / 165 vh with a `min(46vh, 420px)` frame
+- Atelier's swatch column is `justify-between`, anchoring its note to the bottom of the canvas
+- The hero is 82 vh; gallery rows are 320 px
+
 ## Type system
 
 Carried over from [`sakshamfit/trendy-attier`](https://github.com/sakshamfit/trendy-attier) and
@@ -72,13 +83,27 @@ re-tuned to the A3 palette:
 - **Instrument Serif italic** survives as the `.accent` class for the one emphasised word per
   headline, with **Inter Tight** for running copy
 
+## Testing
+
+```bash
+npm run test:smoke     # builds, then runs the jsdom regression harness
+```
+
+`tools/smoke/` renders `<App />` into jsdom against the **real built CSS** and asserts 80
+properties that are easy to break and hard to notice: that no scroll-revealed element is left
+transparent, that the consultation form and every field in it is visible, the pink palette
+tokens compile to the right `rgb()` values, the Archivo typography contract, scroll-safety, and
+layout density (band padding ceiling plus a source audit that fails on oversized spacing
+utilities). Run it after touching a section — it has caught real bugs, including a stranded
+`opacity: 0` form and an inverted shell-wipe clip path.
+
 ## Sections
 
 | # | Section | Motion / 3D |
 | --- | --- | --- |
 | 1 | **Hero** — image at `object-bottom`/`opacity-70` over `#111` with gradient | intro timeline; SplitText line masks (`autoSplit`, re-splits after font swap); scrub parallax + copy lift |
 | — | **Marquee** — services ticker | infinite GSAP tween whose `timeScale` follows scroll velocity |
-| 2 | **Philosophy** — sticky metrics rail (3) · spacer (2) · narrative (7) | clip-path figure reveal, per-word opacity scrub, counting metrics, rules that draw in |
+| 2 | **Philosophy** — three full-width rows: headline beside the narrative · metrics strip · figure with the amenity list riding inside it | clip-path figure reveal, per-word opacity scrub, counting metrics, rules that draw in |
 | 3 | **Residences** — sticky availability rail with L/R arrows | row entrances, hairline draw, image parallax; `grayscale-[20%]` → colour, `duration-1000` scale |
 | 4 | **Atelier** — material board | **Three.js**: abstract A3 room lit through one aperture, floating material board, pointer lean, camera dolly on scroll, planes lift when the DOM swatch list is hovered |
 | 5 | **Transform** — shell → finished | pinned sticky frame; a `--p` custom property GSAP scrubs 0 → 1 wipes the blueprint shell off the finished render |
@@ -86,6 +111,27 @@ re-tuned to the A3 palette:
 | 7 | **Reviews** — 4.8 from 174, verbatim Google quotes | scroll-driven horizontal track on desktop, stacked list on mobile |
 | 8 | **Contact** — stone-100, underlined fields | field stagger; submit composes a pre-filled WhatsApp message (no server, nothing stored) |
 | 9 | **Footer** — stone-900, closing CTA |
+
+## How reveals work
+
+Entrances (`.gsap-ready [data-reveal] { opacity: 0 }` plus an animation) are driven by
+**IntersectionObserver**, not ScrollTrigger. ScrollTrigger is kept for what it is genuinely good
+at — scrubs, the pinned shell wipe, counters, the horizontal review track — but it re-renders a
+tween's start state on every refresh, so an element that hides itself is at risk: a refresh after
+a pinned section resized the document could put it back to invisible, and an unreachable trigger
+start would leave it hidden for good. Observing intersection means an element that enters the
+viewport is revealed once and nothing can undo it.
+
+Three layers protect the copy:
+
+1. `revealOnEnter` / `revealIn` (`src/lib/gsap.ts`) — IntersectionObserver reveals, with a direct
+   jump to the end state when the API is missing or motion is reduced
+2. a per-section safety net that fades in anything still transparent while sitting in the
+   viewport (after a short grace period, so it never races the intended animation)
+3. a hero-specific failsafe, so the intro timeline can never leave the headline hidden
+
+The consultation form deliberately opts out: its fields are never a `from { opacity: 0 }` target,
+so the form cannot be hidden by a mis-timed animation.
 
 ## Three.js notes
 

@@ -37,7 +37,7 @@ export default function Transform() {
   }, [])
 
   return (
-    <section ref={scope} id="process" className="relative h-[165vh] bg-bone md:h-[185vh]">
+    <section ref={scope} id="process" className="relative h-[150vh] bg-bone md:h-[165vh]">
       <div className="sticky top-0 flex h-svh flex-col justify-center overflow-hidden md:h-screen">
         <div className="wrap">
           <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
@@ -62,7 +62,7 @@ export default function Transform() {
                 alt="Finished dark modular kitchen after an A3 fit-out"
                 loading="lazy"
                 decoding="async"
-                className="h-[190px] w-full object-cover sm:h-[290px] lg:h-[380px]"
+                className="h-[200px] w-full object-cover sm:h-[300px] lg:h-[min(46vh,420px)]"
               />
               {/* shell layer wiped away by --p — same room, blueprint-toned.
                   p=0 → shell fully covers the frame, p=1 → shell fully wiped. */}

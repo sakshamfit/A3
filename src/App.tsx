@@ -10,11 +10,21 @@ import Gallery from './sections/Gallery'
 import Reviews from './sections/Reviews'
 import Contact from './sections/Contact'
 import Footer from './sections/Footer'
-import { installScrollTriggerRefresh } from './lib/gsap'
+import { installRevealSafetyNet, installScrollTriggerRefresh } from './lib/gsap'
 
 export default function App() {
-  /* ScrollTrigger measures early — re-measure once fonts and images settle. */
-  useEffect(() => installScrollTriggerRefresh(), [])
+  /*
+    ScrollTrigger measures early — re-measure once fonts and images settle, and
+    keep a safety net so no scroll-revealed element can stay invisible.
+  */
+  useEffect(() => {
+    const stopRefresh = installScrollTriggerRefresh()
+    const stopSafetyNet = installRevealSafetyNet()
+    return () => {
+      stopRefresh()
+      stopSafetyNet?.()
+    }
+  }, [])
 
   return (
     /*

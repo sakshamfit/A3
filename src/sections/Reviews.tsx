@@ -2,6 +2,13 @@ import ReviewQuote from '../components/ReviewQuote'
 import { gsap, useGsap } from '../lib/gsap'
 import { BUSINESS, REVIEWS } from '../lib/site'
 
+const REVIEW_FACTS = [
+  { label: 'Open', value: 'Daily · 10 am – 10 pm' },
+  { label: 'Serving', value: 'Gorakhpur & nearby cities' },
+  { label: 'Scope', value: 'Residential & commercial' },
+  { label: 'Studio', value: 'Azeet Plaza, Commercial Road' },
+] as const
+
 /**
  * Section 7 — Reviews.
  *
@@ -30,7 +37,7 @@ export default function Reviews() {
   }, [])
 
   return (
-    <section ref={scope} id="reviews" className="relative bg-bone md:h-[210vh]">
+    <section ref={scope} id="reviews" className="relative bg-bone md:h-[185vh]">
       <div className="md:sticky md:top-0 md:flex md:h-screen md:items-center md:overflow-hidden">
         <div className="w-full">
           <div className="wrap">
@@ -71,7 +78,7 @@ export default function Reviews() {
               {REVIEWS.map((review, i) => (
                 <li
                   key={i}
-                  className="flex w-full flex-col justify-between border border-ink/10 bg-shell p-6 md:h-[320px] md:w-[360px] md:shrink-0 lg:w-[410px]"
+                  className="flex w-full flex-col justify-between border border-ink/12 bg-shell p-6 md:h-[min(46vh,400px)] md:w-[360px] md:shrink-0 lg:w-[410px]"
                 >
                   <div>
                     <div className="flex items-center justify-between">
@@ -93,7 +100,7 @@ export default function Reviews() {
                 </li>
               ))}
 
-              <li className="hidden w-[360px] shrink-0 flex-col justify-between border border-ink/10 bg-ink p-6 text-chalk md:flex">
+              <li className="hidden w-[360px] shrink-0 flex-col justify-between border border-ink/12 bg-ink p-6 text-chalk md:h-[min(46vh,400px)] md:flex">
                 <p className="lbl text-chalk/45">Next</p>
                 <div>
                   <p className="headline text-[clamp(26px,2.6vw,40px)] text-chalk">
@@ -115,6 +122,18 @@ export default function Reviews() {
                 </div>
               </li>
             </ul>
+          </div>
+
+          {/* Facts strip — fills the pinned viewport beneath the track */}
+          <div className="wrap mt-8 grid grid-cols-2 gap-x-8 gap-y-4 border-t border-ink/10 pt-6 sm:grid-cols-4">
+            {REVIEW_FACTS.map((fact) => (
+              <div key={fact.label}>
+                <p className="lbl text-ink/40">{fact.label}</p>
+                <p className="copy num mt-1.5 text-[13.5px] font-medium text-ink/75">
+                  {fact.value}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       </div>
