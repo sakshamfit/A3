@@ -176,7 +176,7 @@ export default function Hero() {
                 →
               </span>
             </a>
-            <a href="#projects" className="btn btn--ghost on-ink">
+            <a href="/works" className="btn btn--ghost on-ink">
               View the collection
             </a>
           </div>

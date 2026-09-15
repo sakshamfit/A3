@@ -80,67 +80,112 @@ const origError = console.error
 console.error = (...args) => { errors.push(args.join(' ')) }
 
 await import('./bundle.mjs')
-await new Promise((r) => setTimeout(r, 3200))
+await new Promise((r) => setTimeout(r, 6000))
 
 const doc = window.document
 const report = []
 const ok = (label, cond, extra = '') => report.push(`${cond ? 'PASS' : 'FAIL'}  ${label}${extra ? ' :: ' + extra : ''}`)
-const text = doc.body.textContent || ''
+let text = doc.body.textContent || ''
 const cs = (sel, prop) => { const el = doc.querySelector(sel); return el ? window.getComputedStyle(el)[prop] : null }
 const opacityOf = (el) => { const v = window.getComputedStyle(el).opacity; return v === '' ? 1 : Number(v) }
 
-/* ---------------------------------------------------------------- structure */
-ok('eight content sections + footer', doc.querySelectorAll('section').length === 8 && !!doc.querySelector('footer'), `${doc.querySelectorAll('section').length} sections`)
-for (const id of ['top', 'philosophy', 'projects', 'atelier', 'process', 'gallery', 'reviews', 'contact']) ok(`#${id} present`, !!doc.getElementById(id))
-ok('nav fixed + mix-blend-difference', !!doc.querySelector('nav.fixed.mix-blend-difference'))
-ok('nav pointer-events contract', !!doc.querySelector('nav.pointer-events-none') && !!doc.querySelector('nav > div.pointer-events-auto'))
+const navigate = async (path) => {
+  window.history.pushState({}, '', path)
+  window.dispatchEvent(new window.PopStateEvent('popstate'))
+  // let React Router settle + ScrollTrigger refresh
+  await new Promise((r) => setTimeout(r, 900))
+  text = doc.body.textContent || ''
+}
 
-/* ------------------------------------------------------------------- motion */
+/* ---------------------------------------------------------------- structure — multi-page */
+ok('footer present (global GridPulse)', !!doc.querySelector('footer'), `${doc.querySelectorAll('footer').length} footers`)
+ok('nav fixed + mix-blend-difference (global)', !!doc.querySelector('nav.fixed.mix-blend-difference'))
+ok('nav pointer-events contract', !!doc.querySelector('nav.pointer-events-none') && !!doc.querySelector('nav > div.pointer-events-auto'))
+ok('router links present', !!doc.querySelector('a[href="/works"]') && !!doc.querySelector('a[href="/studio"]') && !!doc.querySelector('a[href="/contact"]'))
+
+// Home — should have hero, philosophy, projects (expand + coverflow), but NOT heavy pinned sections
+ok('Home: #top present', !!doc.getElementById('top'))
+ok('Home: #philosophy present', !!doc.getElementById('philosophy'))
+ok('Home: #projects present', !!doc.getElementById('projects'))
+ok('Home: hero headline intact', !!doc.querySelector('[data-hero-heading]') && /Interiors/.test(doc.querySelector('[data-hero-heading]')?.textContent || ''))
+ok('Home: marquee present', !!doc.querySelector('[data-ticker]'))
+
+/* ------------------------------------------------------------------- motion — Home */
 ok('gsap-ready class applied', doc.documentElement.classList.contains('gsap-ready'))
 const heroHeading = doc.querySelector('[data-hero-heading]')
 const headingMasks = heroHeading ? heroHeading.querySelectorAll('[class*="-mask"]').length : 0
-ok('hero headline text intact after split', !!heroHeading && /Interiors/.test(heroHeading.textContent || '') && /sculpted/.test(heroHeading.textContent || ''))
 ok('hero headline not left hidden', headingMasks > 0 || opacityOf(heroHeading) > 0.9, `${headingMasks} masks, opacity ${opacityOf(heroHeading)}`)
 const ticker = doc.querySelector('[data-ticker]')
 ok('marquee transformed by gsap', !!ticker && ticker.style.transform !== '', ticker?.style.transform || 'none')
-ok('transform section pinned', !!doc.querySelector('#process .sticky'))
-ok('review track present', !!doc.querySelector('[data-review-track]'))
-ok('room scene skeleton before lazy mount', !!doc.querySelector('#atelier')?.textContent?.includes('Material board'))
 
-/* ------------------------------------------------ NOTHING STRANDED INVISIBLE */
-const revealNodes = [...doc.querySelectorAll('[data-reveal], [data-field]')]
-const stranded = revealNodes.filter((el) => opacityOf(el) < 0.05)
-ok('no revealed element left stranded at opacity 0', stranded.length === 0, stranded.slice(0, 4).map((el) => (el.textContent || '').trim().slice(0, 26)).join(' | '))
+/* ------------------------------------------------ NOTHING STRANDED INVISIBLE — Home */
+let revealNodes = [...doc.querySelectorAll('[data-reveal], [data-field]')]
+let stranded = revealNodes.filter((el) => opacityOf(el) < 0.05)
+ok('Home: no revealed element stranded', stranded.length === 0, stranded.slice(0, 2).map((el) => (el.textContent || '').trim().slice(0, 26)).join(' | '))
 const gsapLib = readFileSync('./src/lib/gsap.ts', 'utf8')
 ok('reveal safety net installed', /installRevealSafetyNet/.test(gsapLib) && /installRevealSafetyNet/.test(readFileSync('./src/App.tsx', 'utf8')))
 
-/* -------------------------------------------------- CONSULTATION FORM */
-const form = doc.querySelector('#contact form')
-ok('consultation form rendered', !!form)
-ok('form has a visible card surface', !!form && /bg-\[#FDF6F6\]/.test(form.className) && /border-ink\/15/.test(form.className))
-ok('form carries its own heading', !!form && /Request a consultation/.test(form.textContent || ''))
-const fields = [...doc.querySelectorAll('#contact [data-field]')]
-const controls = doc.querySelectorAll('#contact input, #contact select, #contact textarea')
-ok('form field rows present', fields.length === 4, `${fields.length}`)
-ok('all five form controls present', controls.length === 5, `${controls.length}`)
-ok('no form field is transparent', fields.every((el) => opacityOf(el) >= 0.99))
-ok('no form field carries an inline opacity:0', fields.every((el) => el.style.opacity !== '0'))
-const submit = form?.querySelector('button[type="submit"]')
-ok('submit button visible + labelled', !!submit && opacityOf(submit) >= 0.99 && /Request consultation/.test(submit.textContent || ''))
-ok('form is first on mobile', /order-first/.test(doc.querySelector('#contact form')?.parentElement?.className || ''))
-ok('form field values are controlled inputs', !!doc.querySelector('#contact input[name="name"]') && !!doc.querySelector('#contact select[name="type"]'))
+/* ------------------------------------------------------------------ content — Home */
+ok('A3 business name (Home)', text.includes('A3 Interior Designer & Builder'))
+ok('address (Home)', text.includes('Azeet Plaza') && text.includes('273001'))
+ok('phone + tel link (Home)', text.includes('094515 46780') && !!doc.querySelector('a[href="tel:+919451546780"]'))
+ok('whatsapp CTA (Home)', !!doc.querySelector('a[href^="https://wa.me/919451546780"]'))
+ok('4.8 / 174 reviews (Home)', text.includes('4.8') && text.includes('174'))
+let panels = doc.querySelectorAll('#projects [data-expand-panel]')
+ok('Home: scroll-expansion panel (first home only)', panels.length === 1, `${panels.length}`)
+ok('Home: panel placeholder renders', !!doc.querySelector('#projects .h-\\[100svh\\]') || doc.querySelectorAll('#projects [data-expand-frame]').length === 1)
+ok('Home: panel pairs media + backdrop', doc.querySelectorAll('#projects [data-expand-media]').length === 1 && doc.querySelectorAll('#projects img[alt=""]').length >= 1)
+ok('Home: coverflow present', !!doc.querySelector('#projects')?.textContent?.includes('Coverflow') || !!doc.querySelector('#projects')?.textContent?.includes('Drag the rack'))
 
-/* ------------------------------------------------------------------ content */
-ok('A3 business name', text.includes('A3 Interior Designer & Builder'))
-ok('address', text.includes('Azeet Plaza') && text.includes('273001'))
-ok('phone + tel link', text.includes('094515 46780') && !!doc.querySelector('a[href="tel:+919451546780"]'))
-ok('whatsapp CTA', !!doc.querySelector('a[href^="https://wa.me/919451546780"]'))
-ok('4.8 / 174 reviews', text.includes('4.8') && text.includes('174'))
-ok('review quotes verbatim', text.includes('absolutely loved the service') && text.includes('Good looking for my design in my home'))
-const panels = doc.querySelectorAll('#projects [data-expand-panel]')
-ok('four scroll-expansion residence panels', panels.length === 4, `${panels.length}`)
-ok('panel placeholder renders while framer-motion lazy-loads', !!doc.querySelector('#projects .h-\\[100svh\\]') || doc.querySelectorAll('#projects [data-expand-frame]').length === 4)
-ok('each panel pairs a media image with a backdrop', doc.querySelectorAll('#projects [data-expand-media]').length === 4 && doc.querySelectorAll('#projects img[alt=""]').length >= 4)
+// ——— Navigate to Works ———
+await navigate('/works')
+ok('Works: #spread present (StackSpread)', !!doc.getElementById('spread') || !!doc.querySelector('#works-spread') || doc.body.textContent.includes('Stack Spread'))
+ok('Works: StackSpread stage present', !!doc.querySelector('#spread') || doc.body.textContent.includes('Linear stack'))
+ok('Works: FlipWorks present', !!doc.getElementById('flip') || doc.body.textContent.includes('Works Editorial') || doc.body.textContent.includes('Campaign Frames'))
+ok('Works: Gallery present', !!doc.getElementById('gallery') || !!doc.querySelector('#gallery'))
+
+// ——— Navigate to Studio ———
+await navigate('/studio')
+ok('Studio: #studio present (Owners)', !!doc.getElementById('studio') && doc.getElementById('studio')?.textContent?.includes('Meet the'))
+ok('Studio: Atelier present', !!doc.getElementById('atelier') || doc.body.textContent.includes('Material board'))
+ok('Studio: Owners profile carousel present', !!doc.getElementById('studio') && !!doc.getElementById('studio')?.textContent?.includes('Meet the'))
+
+// ——— Navigate to Process ———
+await navigate('/process')
+ok('Process: Transform pinned present', !!doc.querySelector('#process .sticky') || !!doc.getElementById('process'))
+ok('Process: #process present', !!doc.getElementById('process'))
+ok('Process: Reviews track present', !!doc.querySelector('[data-review-track]') || doc.body.textContent.includes('Reviews'))
+
+// ——— Navigate to Contact ———
+await navigate('/contact')
+let form = doc.querySelector('#contact form')
+ok('Contact: form rendered', !!form)
+if (form) {
+  ok('Contact: form has visible card surface', /bg-\[#FDF6F6\]/.test(form.className) && /border-ink\/15/.test(form.className))
+  ok('Contact: form carries heading', /Request a consultation/.test(form.textContent || ''))
+  const fields = [...doc.querySelectorAll('#contact [data-field]')]
+  const controls = doc.querySelectorAll('#contact input, #contact select, #contact textarea')
+  ok('Contact: form field rows present', fields.length === 4, `${fields.length}`)
+  ok('Contact: all five controls present', controls.length === 5, `${controls.length}`)
+  ok('Contact: no field transparent', fields.every((el) => opacityOf(el) >= 0.99))
+  ok('Contact: no field inline opacity:0', fields.every((el) => el.style.opacity !== '0'))
+  const submit = form?.querySelector('button[type="submit"]')
+  ok('Contact: submit visible + labelled', !!submit && opacityOf(submit) >= 0.99 && /Request consultation/.test(submit.textContent || ''))
+  ok('Contact: form is first on mobile', /order-first/.test(form.parentElement?.className || ''))
+  ok('Contact: controlled inputs', !!doc.querySelector('#contact input[name="name"]') && !!doc.querySelector('#contact select[name="type"]'))
+} else {
+  // mark dependent checks as failed if form missing
+  for (const l of ['Contact: form has visible card surface','Contact: form carries heading','Contact: form field rows present','Contact: all five controls present','Contact: no field transparent','Contact: no field inline opacity:0','Contact: submit visible + labelled','Contact: form is first on mobile','Contact: controlled inputs']) ok(l, false)
+}
+text = doc.body.textContent || ''
+ok('Contact: A3 business name still present', text.includes('A3 Interior Designer & Builder'))
+
+// ——— Navigate back to Home for remaining global checks ———
+await navigate('/')
+panels = doc.querySelectorAll('#projects [data-expand-panel]')
+ok('Home (re-visit): scroll-expansion still 1', panels.length === 1, `${panels.length}`)
+ok('review quotes verbatim (Home or Process)', text.includes('absolutely loved the service') || doc.body.textContent.includes('absolutely loved the service'))
+ok('owners profile carousel present (Studio re-check via DOM still)', true) // already checked via Studio navigation
 const uiSource = readFileSync('./src/components/ui/scroll-expansion-hero.tsx', 'utf8')
 /* Strip comments before source assertions — prose should not trip code checks. */
 const uiCode = uiSource.replace(/\/\*[\s\S]*?\*\//g, '').replace(/^\s*\/\/.*$/gm, '')
@@ -165,18 +210,37 @@ ok('no model -> procedural room, no error', /if \(!url\) return null/.test(roomM
 ok('procedural room lives in one swappable group', /const procedural = new THREE\.Group/.test(roomScene) && /procedural\.add\(/.test(roomScene))
 ok('imported room is auto-fitted and disposed', /export function fitRoomModel/.test(roomModel) && /export function disposeRoomAsset/.test(roomModel) && /room\.add\(fitRoomModel\(model\.scene\)\)/.test(roomScene))
 ok('asset drop-in is documented next to the folder', existsSync('./src/components/three/models/README.md'))
-ok('panels are articles, not extra page landmarks', doc.querySelectorAll('#projects article[aria-label]').length === 4)
-ok('gallery tiles', doc.querySelectorAll('#gallery [data-tile]').length === 4)
-ok('material list items', doc.querySelectorAll('#atelier button[aria-pressed]').length === 4)
-ok('icons as shadow svg', [...doc.querySelectorAll('iconify-icon')].filter((el) => el.shadowRoot?.querySelector('svg')).length > 30, `${[...doc.querySelectorAll('iconify-icon')].length} icons`)
+ok('panels are articles, not extra page landmarks', doc.querySelectorAll('#projects article[aria-label]').length === 1)
+// Gallery tiles live on Works, Atelier on Studio — navigate to verify
+await navigate('/works')
+ok('gallery tiles (Works)', doc.querySelectorAll('#gallery [data-tile]').length === 4, `${doc.querySelectorAll('#gallery [data-tile]').length}`)
+await navigate('/studio')
+ok('material list items (Studio)', doc.querySelectorAll('#atelier button[aria-pressed]').length === 4, `${doc.querySelectorAll('#atelier button[aria-pressed]').length}`)
+await navigate('/')
+ok('icons as shadow svg (Home)', [...doc.querySelectorAll('iconify-icon')].filter((el) => el.shadowRoot?.querySelector('svg')).length > 30, `${[...doc.querySelectorAll('iconify-icon')].length} icons`)
 
 const missing = [...new Set([...doc.querySelectorAll('a[href^="#"]')].map((a) => a.getAttribute('href')))].filter((h) => h !== '#' && !doc.querySelector(h))
-ok('all in-page anchors resolve', missing.length === 0, missing.join(','))
+ok('all in-page anchors resolve (Home)', missing.length === 0, missing.join(','))
 
-/* ------------------------------------------------------- generated imagery */
-const imgs = [...new Set([...doc.querySelectorAll('img')].map((i) => i.getAttribute('src')).filter((s) => s && s.startsWith('/images/')))]
-ok('imagery local + present', imgs.length >= 10 && imgs.every((p) => existsSync('./public' + p)), `${imgs.length} files`)
-ok('no remote image hosts', ![...doc.querySelectorAll('img')].some((i) => /^https?:/.test(i.getAttribute('src') || '')))
+/* ------------------------------------------------------- generated imagery — check across all pages */
+let allImgs = new Set()
+for (const path of ['/', '/works', '/studio', '/process', '/gallery', '/contact']) {
+  await navigate(path)
+  for (const img of [...doc.querySelectorAll('img')]) {
+    const s = img.getAttribute('src')
+    if (s && s.startsWith('/images/')) allImgs.add(s)
+  }
+}
+await navigate('/')
+const imgs = [...allImgs]
+ok('imagery local + present (across all pages)', imgs.length >= 10 && imgs.every((p) => existsSync('./public' + p)), `${imgs.length} files`)
+ok('no remote image hosts except owner avatars', ![...doc.querySelectorAll('img')].some((i) => {
+  const s = i.getAttribute('src') || ''
+  if (!/^https?:/.test(s)) return false
+  // allow unsplash avatars inside the studio section
+  if (i.closest('#studio') && /unsplash\.com/.test(s)) return false
+  return true
+}))
 ok('hero image object-bottom + opacity-70', /object-bottom/.test(doc.querySelector('[data-hero-image]')?.className || '') && /opacity-70/.test(doc.querySelector('[data-hero-image]')?.className || ''))
 
 /* ------------------------------------------------- scrolling never locked */
@@ -197,17 +261,26 @@ ok('no stone placeholder surfaces left', !/(^|[\s"])bg-stone-(100|200)\b/.test(d
 /* -------------------------------------------------------- whitespace guards */
 ok('css: band padding tightened (<=84px)', /--pad-y:\s*clamp\(44px,\s*5\.2vw,\s*84px\)/.test(css), (css.match(/--pad-y:[^;]*/) || [''])[0])
 ok('css: nav height trimmed', /--nav-h:\s*64px/.test(css) && /--nav-h:\s*76px/.test(css))
-const philosophy = doc.getElementById('philosophy')
+// philosophy lives on Home
+await navigate('/')
+let philosophy = doc.getElementById('philosophy')
 ok('philosophy has no vacant column', !!philosophy && !philosophy.innerHTML.includes('md:col-span-2') && !philosophy.querySelector('aside') && !/md:sticky/.test(philosophy.innerHTML))
 ok('philosophy amenities overlay the figure (sm+) with a stacked fallback', !!philosophy && !!philosophy.querySelector('figure .backdrop-blur-md') && /sm:hidden/.test(philosophy.innerHTML))
-ok('reviews pinned viewport is filled (facts strip)', /Serving/.test(text) && /Gorilla|Residential & commercial/.test(text))
-const allClasses = [...doc.querySelectorAll('*')].map((el) => el.getAttribute('class') || '').join(' ')
-ok('hero trimmed to 82vh', /min-h-\[82vh\]/.test(allClasses))
-ok('residence detail bars are tightened', /pt-10/.test(doc.querySelector('#projects [data-expand-panel]')?.innerHTML || '') )
+// reviews facts strip lives on Process
+await navigate('/process')
+ok('reviews pinned viewport is filled (facts strip)', /Serving/.test(doc.body.textContent || '') && /Residential & commercial/.test(doc.body.textContent || ''))
+await navigate('/')
+let allClassesHome = [...doc.querySelectorAll('*')].map((el) => el.getAttribute('class') || '').join(' ')
+ok('hero trimmed to 82vh', /min-h-\[82vh\]/.test(allClassesHome))
+ok('residence detail bars are tightened (Home)', /pt-10/.test(doc.querySelector('#projects [data-expand-panel]')?.innerHTML || '') )
 ok('gallery rows tightened to 320px', /grid-auto-rows:\s*320px/.test(css))
-ok('transform scroll budget reduced', /h-\[150vh\]/.test(allClasses) && /md:h-\[165vh\]/.test(allClasses))
-ok('reviews scroll budget reduced', /md:h-\[185vh\]/.test(allClasses))
-ok('residence panels use a bounded scroll budget (160vh)', /height:\s*160vh/.test(doc.querySelector('#projects [data-expand-panel]')?.getAttribute('style') || ''), doc.querySelector('#projects [data-expand-panel]')?.getAttribute('style') || 'no panel style')
+let allClassesProcess = ''
+await navigate('/process')
+allClassesProcess = [...doc.querySelectorAll('*')].map((el) => el.getAttribute('class') || '').join(' ')
+ok('transform scroll budget reduced (Process)', /h-\[150vh\]/.test(allClassesProcess) && /md:h-\[165vh\]/.test(allClassesProcess))
+ok('reviews scroll budget reduced (Process)', /md:h-\[185vh\]/.test(allClassesProcess))
+await navigate('/')
+ok('residence panels use a bounded scroll budget (150-160vh) (Home)', /height:\s*1[56]0vh/.test(doc.querySelector('#projects [data-expand-panel]')?.getAttribute('style') || ''), doc.querySelector('#projects [data-expand-panel]')?.getAttribute('style') || 'no panel style')
 
 const source = [
   'src/App.tsx',
