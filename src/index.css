@@ -2,10 +2,116 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
-  font-family: 'Inter', sans-serif;
-  background-color: #ffffff;
-  color: #191919;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+/* ---------------------------------------------------------------------------
+   Global style
+   Font: 'Inter Tight' with font-feature-settings "ss01", "ss04"
+   Colours: text #1a1a1a · page #FDFBF9 · dark sections #111 / #1a1a1a
+   --------------------------------------------------------------------------- */
+
+@layer base {
+  :root {
+    color-scheme: light;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    /* fixed nav clearance for in-page anchors */
+    scroll-padding-top: 5.5rem;
+    scrollbar-color: #d6d3d1 #fdfbf9;
+  }
+
+  /*
+    `clip` (not `hidden`) keeps stray horizontal overflow in check WITHOUT turning
+    html/body into a scroll container — this is what guarantees the page keeps
+    scrolling vertically.
+  */
+  html,
+  body {
+    overflow-x: clip;
+  }
+
+  body {
+    @apply bg-bone font-sans text-ink antialiased;
+    font-feature-settings: 'ss01', 'ss04';
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-feature-settings: 'ss01', 'ss04';
+  }
+
+  ::selection {
+    @apply bg-stone-800 text-white;
+  }
+
+  /* Slim, bone-toned scrollbar to match the palette */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #fdfbf9;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #d6d3d1;
+    border: 2px solid #fdfbf9;
+    border-radius: 9999px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #a8a29e;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.001ms !important;
+      transition-duration: 0.001ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Philosophy section image reveal — clip path + the exact source curve */
+  .image-reveal {
+    clip-path: inset(0 0 0 0);
+    transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1);
+    will-change: transform;
+  }
+
+  .label {
+    @apply text-[11px] font-medium uppercase tracking-[0.24em];
+  }
+
+  .field {
+    @apply w-full border-b border-ink/20 bg-transparent py-3 text-[15px] text-ink transition-colors duration-500 placeholder:text-ink/30 focus:border-ink focus:outline-none;
+  }
+
+  .link-underline {
+    @apply relative inline-block;
+  }
+  .link-underline::after {
+    content: '';
+    @apply absolute -bottom-0.5 left-0 h-px w-full origin-left scale-x-0 bg-current transition-transform duration-500 ease-smooth;
+  }
+  .link-underline:hover::after,
+  .link-underline:focus-visible::after {
+    @apply scale-x-100;
+  }
+}
+
+@layer utilities {
+  /* Anything wearing this class is not selectable and shows no focus ring when
+     it is purely decorative (used sparingly). */
+  .no-tap-highlight {
+    -webkit-tap-highlight-color: transparent;
+  }
 }
