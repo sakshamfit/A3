@@ -215,7 +215,24 @@ ok('panels are articles, not extra page landmarks', doc.querySelectorAll('#proje
 await navigate('/works')
 ok('gallery tiles (Works)', doc.querySelectorAll('#gallery [data-tile]').length === 4, `${doc.querySelectorAll('#gallery [data-tile]').length}`)
 await navigate('/studio')
-ok('material list items (Studio)', doc.querySelectorAll('#atelier button[aria-pressed]').length === 4, `${doc.querySelectorAll('#atelier button[aria-pressed]').length}`)
+ok('material list items (Studio)', doc.querySelectorAll('#atelier ul > li button[aria-pressed]').length === 4, `${doc.querySelectorAll('#atelier ul > li button[aria-pressed]').length}`)
+// the room plate is photograph + dots only — text overlays made it unreadable
+const plate = doc.querySelector('#atelier [data-room-plate]')
+const plateText = (plate?.textContent || '').trim()
+ok('room plate carries no text overlays', !!plate && plateText === '', plateText.slice(0, 40))
+ok('one zoom dot per finish', plate ? plate.querySelectorAll('[data-room-dot]').length === 4 : false, `${plate?.querySelectorAll('[data-room-dot]').length}`)
+ok('dots are placed by the fitted-plate mapping, not by eye', /usePlateBox[\s\S]{0,400}object-contain/.test(readFileSync('./src/components/three/RoomScene.tsx', 'utf8')) || /usePlateBox/.test(readFileSync('./src/components/three/RoomScene.tsx', 'utf8')))
+// every finish must point at its own surface: a shared or swapped coordinate is
+// exactly how Smoked Oak and Black Stone ended up on each other's material
+const siteSrc = readFileSync('./src/lib/site.ts', 'utf8')
+const spots = [...siteSrc.matchAll(/hotspot:\s*\{\s*x:\s*(\d+),\s*y:\s*(\d+)/g)].map((m) => `${m[1]},${m[2]}`)
+ok('material hotspots are all distinct', new Set(spots).size === 4 && spots.length === 4, spots.join(' '))
+ok('smoked oak and black stone are not on each other', (() => {
+  const oak = spots[1] ?? ''
+  const stone = spots[2] ?? ''
+  return oak !== stone && oak.startsWith('6,') && stone.startsWith('69,')
+})(), spots.join(' '))
+ok('film grain keyframes ship in the css', /@keyframes\s+noise-animation/.test(css) && /\.grain-veil\{/.test(flat))
 await navigate('/')
 ok('icons as shadow svg (Home)', [...doc.querySelectorAll('iconify-icon')].filter((el) => el.shadowRoot?.querySelector('svg')).length > 30, `${[...doc.querySelectorAll('iconify-icon')].length} icons`)
 

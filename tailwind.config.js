@@ -48,6 +48,15 @@ export default {
       spacing: {
         26: '6.5rem',
       },
+      /* Film grain — `layout-preloader`. The `noise-animation` keyframes live in
+         src/index.css, next to the `.grain-*` layers that share them, so they are
+         not re-declared here (Tailwind 3 would emit a duplicate @keyframes).
+         Registering the name is what turns `animate-noise` into a real utility —
+         the Tailwind 4 equivalent would be `@theme { --animate-noise: … }`. */
+      animation: {
+        noise: 'noise-animation 1.1s steps(1, end) infinite',
+        'noise-sweep': 'noise-sweep 5.4s linear infinite',
+      },
     },
   },
   plugins: [],

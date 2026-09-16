@@ -98,9 +98,12 @@ export default function Atelier() {
         </div>
 
         <div className="mt-10 grid gap-7 lg:grid-cols-12">
-          {/* Architectural material showroom & visualizer */}
+          {/* Architectural material showroom & visualizer. Fixed heights (not an
+              aspect box) because the close shot inside needs room for its spec
+              bar on a phone; the plate fits itself with `object-contain`, so a
+              taller frame only adds ink bars, never crops a finish away. */}
           <div ref={hostRef} data-reveal="fade" className="lg:col-span-7">
-            <div className="h-[370px] w-full border border-white/15 sm:h-[420px] lg:h-[470px] shadow-2xl overflow-hidden">
+            <div className="h-[300px] w-full border border-white/15 sm:h-[420px] lg:h-[470px] shadow-2xl overflow-hidden">
               {mountScene ? (
                 <Suspense fallback={<SceneSkeleton />}>
                   <RoomScene
@@ -178,9 +181,9 @@ export default function Atelier() {
             </ul>
 
             <p className="copy mt-6 text-[12.5px] lg:mt-auto lg:pt-6">
-              The living pavilion above illustrates these four core finishes in natural daylight.
-              Move your cursor across the room to experience the parallax perspective, tap the
-              pins, or inspect the 1:1 macro tactile textures.
+              The living pavilion above shows these four core finishes in natural daylight, marked
+              with one dot each — on the surface, nothing written over it. Hover a finish here, or
+              tap a dot, and the room lights it; tap again to drop into the 1:1 macro.
             </p>
           </div>
         </div>

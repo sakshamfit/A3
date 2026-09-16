@@ -29,6 +29,7 @@ npm run preview
 | 3D | Three.js 0.186, `WebGLRenderer` — lazy chunk, no `@react-three/*` wrapper, drop-in `.glb`/`.hdr` path |
 | Structure | shadcn conventions — `components.json`, `@/components/ui`, `cn()` — on Vite, so **no `next`** |
 | Icons | `iconify-icon` web component, Solar set registered offline from `@iconify-icons/solar` |
+| First paint | `src/components/ui/layout-preloader.tsx` — film-grain curtain; the grain is an inline `feTurbulence` tile animated by `noise-animation`, so no loader package and no asset |
 | Imagery | 10 generated interiors, committed as WebP (~1.2 MB total) |
 
 ## Palette & density
@@ -91,7 +92,7 @@ re-tuned to the A3 palette:
 npm run test:smoke     # builds, then runs the jsdom regression harness
 ```
 
-`tools/smoke/` renders `<App />` into jsdom against the **real built CSS** and asserts 97
+`tools/smoke/` renders `<App />` into jsdom against the **real built CSS** and asserts 111
 properties that are easy to break and hard to notice: that no scroll-revealed element is left
 transparent, that the consultation form and every field in it is visible, the pink palette
 tokens compile to the right `rgb()` values, the Archivo typography contract, scroll-safety, and
@@ -107,9 +108,9 @@ dropped-in `.glb` without pulling the three loaders onto the critical path. Run 
 | --- | --- | --- |
 | 1 | **Hero** — image at `object-bottom`/`opacity-70` over `#111` with gradient | intro timeline; SplitText line masks (`autoSplit`, re-splits after font swap); scrub parallax + copy lift |
 | — | **Marquee** — services ticker | infinite GSAP tween whose `timeScale` follows scroll velocity |
-| 2 | **Philosophy** — three full-width rows: headline beside the narrative · metrics strip · figure with the amenity list riding inside it | clip-path figure reveal, per-word opacity scrub, counting metrics, rules that draw in |
+| 2 | **Philosophy** — three full-width rows: headline beside the narrative · metrics strip · figure with the amenity list riding inside it | the detail shot is an inline `LayoutPreloader` plate (live grain + count hairline, clears on hover); clip-path figure reveal, per-word opacity scrub, counting metrics, rules that draw in |
 | 3 | **Residences** — sticky availability rail with L/R arrows | row entrances, hairline draw, image parallax; `grayscale-[20%]` → colour, `duration-1000` scale |
-| 4 | **Atelier** — material board | **Three.js**: abstract A3 room lit through one aperture, floating material board, pointer lean, camera dolly on scroll, planes lift when the DOM swatch list is hovered |
+| 4 | **Atelier** — material board: the room plate, one dot per finish, no text laid over the photograph | **Three.js**: abstract A3 room lit through one aperture, floating material board, pointer lean, camera dolly on scroll, planes lift when the DOM swatch list is hovered |
 | 5 | **Transform** — shell → finished | pinned sticky frame; a `--p` custom property GSAP scrubs 0 → 1 wipes the blueprint shell off the finished render |
 | 6 | **Gallery** — 400 px mosaic (tall / wide / standard / standard) | tile un-clip on entry + per-tile parallax, grayscale → colour on hover |
 | 7 | **Reviews** — 4.8 from 174, verbatim Google quotes | scroll-driven horizontal track on desktop, stacked list on mobile |
@@ -146,6 +147,64 @@ texture for the sun patch. It pauses when off-screen (`IntersectionObserver`), r
 `React.lazy`-loaded only once the section comes within 500 px of the viewport — so the main
 bundle stays at ~123 kB gzip and Three.js (~155 kB gzip) loads on demand. The whole room is
 swappable for a real `.glb` asset — see *Material board — real assets* above.
+
+## First paint — the film-grain curtain
+
+`src/components/ui/layout-preloader.tsx` owns the load sequence and the home-page detail plate,
+from one component with two variants:
+
+- **`overlay`** — `<LayoutPreloaderOverlay show={loading}>` in `App.tsx`: a dark plate, the A3
+  wordmark, a `000 → 100` count and a hairline that fills with it. The count and the shell's
+  `INTRO_MS` are the same number, so the curtain lifts exactly when it reaches 100; the exit is
+  one curtain (`AnimatePresence` slide), scroll is locked only while it covers the page, and
+  `prefers-reduced-motion` skips straight to the finished state.
+- **`inline`** — the Philosophy figure on Home: the same plate holding a real photograph, with
+  `minimal` so it says nothing and only draws the count hairline (the figure already carries its
+  own caption and the amenity strip). Grain thins as the count finishes and burns off further on
+  hover, so the photo — not the effect — is what you end up looking at.
+
+What the upstream snippet needed before it would run here:
+
+- **Tailwind 3, not 4.** The pasted block starts with `@import "tailwindcss"` +
+  `@import "tw-animate-css"`; this project is Tailwind **3.4** driven by `@tailwind` directives in
+  `src/index.css`, and pasting those imports would install a second preflight and re-scale every
+  spacing and colour utility in the app. So the `noise-animation` keyframes went into
+  `src/index.css` verbatim (next to the `.grain-veil` / `.grain-scanlines` / `.grain-sweep` layers
+  that share them), and only the *names* were registered in `tailwind.config.js`
+  (`animate-noise`, `animate-noise-sweep`) — a `keyframes` block there would emit a duplicate
+  `@keyframes`. The Tailwind 4 form is `@theme { --animate-noise: … }`.
+- **`/components/ui` is the right folder, and it is not `components/ui`.** `components.json`
+  aliases `@/components/ui` → `src/components/ui/`; writing to `components/ui` at the repo root
+  would put the file outside the Vite root (`src`), outside `tsconfig.json`'s `include`, and out of
+  reach of `cn()` — the file would silently never be imported by anything.
+- **`demo.tsx`** — the snippet's `import App from '../app'` is a Next.js-ism. Here the tree is
+  `src/App.tsx`, mounted by `src/main.tsx`, and `tsconfig.json` runs `strict` + `noUnusedLocals`,
+  so a demo that does not type-check fails `npm run build`, not just the demo. It imports
+  `../../App` instead.
+- **No new packages.** Dependencies are `framer-motion`, `cn()` from `@/lib/utils`, lucide-free
+  (the plate has no icons) and — deliberately — **no Unsplash URLs**: every other pixel on this
+  site is a committed file in `public/images`, so a remote stock photo would be the one request
+  that can 404, be blocked, or shift the layout. `components.json` sets `cssVariables: false`, so
+  the plate uses the project's own tokens (`bg-inkdeep`, `text-chalk`, `bone`) rather than the
+  shadcn CSS variables its examples expect.
+
+## Material board — dots, not captions
+
+`RoomScene` shows the room as a photograph with **one dot per finish and no text over it** — the
+copy lives in the list beside the frame, where it can be read. Two things make the dots honest:
+
+- **`hotspot` is authored in image space**, as a percentage of
+  `public/images/material-board-room.jpg` (1376×768) — so `x: 6` means "the fluted smoked-oak
+  return at the left edge", which is checkable against the file itself.
+- **The viewer maps it through the frame** with `usePlateBox`, which measures the container and
+  resolves the `object-contain` fit, so a dot cannot drift off its surface as the card resizes.
+  `contain`, not `cover`: a cropped frame silently deletes whichever finish sits nearest the edge
+  (that is how a pin at `x: 88` ended up in the crop's discard, pointing at a shadow and not at
+  the black-stone sideboard at `x: 69`).
+
+Each finish keeps a `macroImage`, the 1:1 close shot the dot zooms into; Smoked Oak's fluted
+panel and Black Stone's leathered monolith must never share a coordinate — the smoke test fails
+if two finishes collide or if either moves onto the other's surface.
 
 ## Scrolling
 

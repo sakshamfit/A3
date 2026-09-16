@@ -9,8 +9,12 @@ import Studio from "./pages/Studio"
 import Process from "./pages/Process"
 import GalleryPage from "./pages/GalleryPage"
 import ContactPage from "./pages/ContactPage"
-import { QuantumCloudLoaderOverlay } from "./components/ui/quantum-cloud-loader"
+import { LayoutPreloaderOverlay } from "./components/ui/layout-preloader"
+import { IMAGES } from "./lib/site"
 import { installRevealSafetyNet, installScrollTriggerRefresh } from "./lib/gsap"
+
+/** The curtain counts to 100 over exactly this long — one number, two places. */
+const INTRO_MS = 1550
 
 function AppShell() {
   const [loading, setLoading] = useState(true)
@@ -19,7 +23,7 @@ function AppShell() {
   useEffect(() => {
     const stopRefresh = installScrollTriggerRefresh()
     const stopSafetyNet = installRevealSafetyNet()
-    const t = window.setTimeout(() => setLoading(false), 1550)
+    const t = window.setTimeout(() => setLoading(false), INTRO_MS)
     return () => {
       window.clearTimeout(t)
       stopRefresh()
@@ -43,7 +47,12 @@ function AppShell() {
 
   return (
     <div className="min-h-screen bg-bone text-ink">
-      <QuantumCloudLoaderOverlay show={loading} />
+      <LayoutPreloaderOverlay
+        show={loading}
+        duration={INTRO_MS}
+        image={IMAGES.hero}
+        sublabel="Loading the studio · Azeet Plaza, Gorakhpur"
+      />
       <Navbar />
       <main>
         <Routes>

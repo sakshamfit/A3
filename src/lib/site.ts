@@ -171,6 +171,15 @@ export type Material = {
   macroImage: string
   specs: string
   application: string
+  /**
+   * Where this finish actually sits on `/images/material-board-room.jpg`.
+   *
+   * Authored in **image space** (percent of the 1376×768 plate, not of the
+   * card): `RoomScene` maps each point through the fitted frame before placing
+   * the dot, so one set of numbers stays on target at every breakpoint.
+   * Verify a coordinate by cropping the source file around it — a dot aimed by
+   * eye at the card instead of the photo lands on the wrong surface.
+   */
   hotspot: { x: number; y: number; label: string }
 }
 
@@ -183,7 +192,7 @@ export const MATERIALS: Material[] = [
     macroImage: '/images/mat-travertine.jpg',
     specs: 'Porous Italian limestone honed to a tactile matte touch, sealed against moisture.',
     application: 'Living room low table, kitchen pantry ledges, bathroom vanities',
-    hotspot: { x: 44, y: 72, label: 'Travertine Table & Ledges' },
+    hotspot: { x: 55, y: 71, label: 'Travertine table & ledges' },
   },
   {
     name: 'Smoked Oak',
@@ -193,7 +202,9 @@ export const MATERIALS: Material[] = [
     macroImage: '/images/mat-smoked-oak.jpg',
     specs: 'Selected European white oak fumed with ammonia vapour for deep amber tones with 12mm flutes.',
     application: 'Full-height wardrobe fronts, media console backing, concealed doors',
-    hotspot: { x: 13, y: 48, label: 'Smoked Oak Fluted Wall' },
+    /* the fluted oak returns on the left of the plate — the dark monolith to
+       its right is Black Stone, and the two must never share a coordinate */
+    hotspot: { x: 6, y: 54, label: 'Smoked oak fluted wall' },
   },
   {
     name: 'Black Stone',
@@ -203,7 +214,8 @@ export const MATERIALS: Material[] = [
     macroImage: '/images/mat-black-stone.jpg',
     specs: 'Dense volcanic granite brushed with diamond bristles for an organic leather touch.',
     application: 'Monolithic kitchen island, fireplace hearth, bathroom counters',
-    hotspot: { x: 88, y: 46, label: 'Black Stone Monolith' },
+    /* the black-stone clad sideboard against the limewashed wall */
+    hotspot: { x: 69, y: 57, label: 'Black stone sideboard fronts' },
   },
   {
     name: 'Limewash',
@@ -213,7 +225,7 @@ export const MATERIALS: Material[] = [
     macroImage: '/images/mat-limewash.jpg',
     specs: 'Natural slaked lime pigmented with mineral earths, troweled in three coats for a velvety patina.',
     application: 'Curved hallway arches, master bedroom ceiling, open-plan living walls',
-    hotspot: { x: 38, y: 28, label: 'Burnished Limewash Walls' },
+    hotspot: { x: 74, y: 22, label: 'Burnished limewash wall' },
   },
 ]
 
