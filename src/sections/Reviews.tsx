@@ -6,7 +6,7 @@ const REVIEW_FACTS = [
   { label: 'Open', value: 'Daily · 10 am – 10 pm' },
   { label: 'Serving', value: 'Gorakhpur & nearby cities' },
   { label: 'Scope', value: 'Residential & commercial' },
-  { label: 'Studio', value: 'Azeet Plaza, Commercial Road' },
+  { label: 'Developers', value: 'Azeet Plaza, Commercial Road' },
 ] as const
 
 /**

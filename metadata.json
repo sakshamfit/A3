@@ -1,0 +1,6 @@
+{
+  "name": "A3 Interior Designer & Builder",
+  "description": "Interior design, architecture and turnkey execution studio in Gorakhpur, Uttar Pradesh.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

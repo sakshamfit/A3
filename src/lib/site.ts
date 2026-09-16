@@ -53,6 +53,11 @@ export const IMAGES = {
   courtyard: '/images/res-courtyard.jpg',
   workspace: '/images/res-workspace.jpg',
   obsidianLuxe: '/images/res-obsidian-luxe.jpg',
+  materialBoardRoom: '/images/material-board-room.jpg',
+  matTravertine: '/images/mat-travertine.jpg',
+  matSmokedOak: '/images/mat-smoked-oak.jpg',
+  matBlackStone: '/images/mat-black-stone.jpg',
+  matLimewash: '/images/mat-limewash.jpg',
 } as const
 
 export const MARQUEE = [
@@ -157,19 +162,59 @@ export const RESIDENCES: Residence[] = [
   },
 ]
 
-/** Material board — drives both the DOM swatches and the WebGL scene. */
+/** Material board — drives both the DOM swatches and the architectural scene. */
 export type Material = {
   name: string
   finish: string
   swatch: string
   note: string
+  macroImage: string
+  specs: string
+  application: string
+  hotspot: { x: number; y: number; label: string }
 }
 
 export const MATERIALS: Material[] = [
-  { name: 'Travertine', finish: 'Honed', swatch: '#d9cfbd', note: 'Counters, ledges, thresholds' },
-  { name: 'Smoked Oak', finish: 'Fluted', swatch: '#9a6b3f', note: 'Wardrobes, panelling, joinery' },
-  { name: 'Black Stone', finish: 'Leathered', swatch: '#2b2b2b', note: 'Kitchen islands, wet areas' },
-  { name: 'Limewash', finish: 'Burnished', swatch: '#e8e2d4', note: 'Walls, arches, ceilings' },
+  {
+    name: 'Travertine',
+    finish: 'Honed',
+    swatch: '#d9cfbd',
+    note: 'Counters, ledges, thresholds',
+    macroImage: '/images/mat-travertine.jpg',
+    specs: 'Porous Italian limestone honed to a tactile matte touch, sealed against moisture.',
+    application: 'Living room low table, kitchen pantry ledges, bathroom vanities',
+    hotspot: { x: 44, y: 72, label: 'Travertine Table & Ledges' },
+  },
+  {
+    name: 'Smoked Oak',
+    finish: 'Fluted',
+    swatch: '#9a6b3f',
+    note: 'Wardrobes, panelling, joinery',
+    macroImage: '/images/mat-smoked-oak.jpg',
+    specs: 'Selected European white oak fumed with ammonia vapour for deep amber tones with 12mm flutes.',
+    application: 'Full-height wardrobe fronts, media console backing, concealed doors',
+    hotspot: { x: 13, y: 48, label: 'Smoked Oak Fluted Wall' },
+  },
+  {
+    name: 'Black Stone',
+    finish: 'Leathered',
+    swatch: '#2b2b2b',
+    note: 'Kitchen islands, wet areas',
+    macroImage: '/images/mat-black-stone.jpg',
+    specs: 'Dense volcanic granite brushed with diamond bristles for an organic leather touch.',
+    application: 'Monolithic kitchen island, fireplace hearth, bathroom counters',
+    hotspot: { x: 88, y: 46, label: 'Black Stone Monolith' },
+  },
+  {
+    name: 'Limewash',
+    finish: 'Burnished',
+    swatch: '#e8e2d4',
+    note: 'Walls, arches, ceilings',
+    macroImage: '/images/mat-limewash.jpg',
+    specs: 'Natural slaked lime pigmented with mineral earths, troweled in three coats for a velvety patina.',
+    application: 'Curved hallway arches, master bedroom ceiling, open-plan living walls',
+    hotspot: { x: 38, y: 28, label: 'Burnished Limewash Walls' },
+  },
 ]
 
 /** Pinned shell → finished transformation. */
@@ -341,7 +386,7 @@ export const REVIEWS: Review[] = [
     quote:
       'A3 interior designer is leading the best architect and top interior designers in Gorakhpur, working with the aim of creating a new way of furnishing.',
     highlights: ['architect', 'top interior designers'],
-    meta: 'From the studio on Google',
+    meta: 'From the developers on Google',
   },
 ]
 

@@ -38,7 +38,7 @@ export default function Home() {
               <span className="ar" aria-hidden="true">→</span>
             </Link>
             <Link to="/studio" className="tlink">
-              Meet the studio
+              Meet the developers
               <span className="ar" aria-hidden="true">→</span>
             </Link>
           </div>

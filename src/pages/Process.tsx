@@ -29,7 +29,7 @@ export default function Process() {
       {/* breathing band between two pinned sections */}
       <section className="band bg-bone border-y border-ink/10">
         <div className="wrap">
-          <p className="lbl text-ink/40">Why one studio</p>
+          <p className="lbl text-ink/40">Why one team of developers</p>
           <h2 className="headline mt-3 max-w-[20ch] text-ink">
             Drawn, made and <span className="accent">built</span> under one roof
           </h2>

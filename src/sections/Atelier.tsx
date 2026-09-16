@@ -32,6 +32,7 @@ function SceneSkeleton() {
  */
 export default function Atelier() {
   const [active, setActive] = useState<number | null>(0)
+  const [isZoomed, setIsZoomed] = useState(false)
   const [mountScene, setMountScene] = useState(false)
   const hostRef = useRef<HTMLDivElement | null>(null)
 
@@ -83,7 +84,7 @@ export default function Atelier() {
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
             <p data-reveal className="lbl text-chalk/45">
-              Material board · WebGL
+              Material board · In Situ Showcase
             </p>
             <h2 data-reveal className="headline mt-4 max-w-[20ch] text-chalk">
               Four finishes, <span className="accent">one</span> language
@@ -91,18 +92,26 @@ export default function Atelier() {
           </div>
           <p data-reveal className="lede text-chalk/60">
             Every A3 room is pinned to the same short list of materials, so a kitchen picked in
-            2024 still matches a wardrobe added in 2026. Move across the finishes — the board
-            responds.
+            2024 still matches a wardrobe added in 2026. Move across the finishes — the room
+            responds in situ.
           </p>
         </div>
 
         <div className="mt-10 grid gap-7 lg:grid-cols-12">
-          {/* Three.js room */}
+          {/* Architectural material showroom & visualizer */}
           <div ref={hostRef} data-reveal="fade" className="lg:col-span-7">
-            <div className="h-[330px] w-full border border-white/10 sm:h-[380px] lg:h-[430px]">
+            <div className="h-[370px] w-full border border-white/15 sm:h-[420px] lg:h-[470px] shadow-2xl overflow-hidden">
               {mountScene ? (
                 <Suspense fallback={<SceneSkeleton />}>
-                  <RoomScene activeMaterial={active} className="h-full w-full" />
+                  <RoomScene
+                    activeMaterial={active}
+                    onSelectMaterial={(idx) => {
+                      setActive(idx)
+                    }}
+                    isZoomed={isZoomed}
+                    onToggleZoom={setIsZoomed}
+                    className="h-full w-full"
+                  />
                 </Suspense>
               ) : (
                 <SceneSkeleton />
@@ -110,7 +119,7 @@ export default function Atelier() {
             </div>
           </div>
 
-          {/* DOM controls for the 3D board */}
+          {/* DOM controls for the material board */}
           <div className="flex flex-col lg:col-span-5">
             <ul>
               {MATERIALS.map((material, i) => (
@@ -119,21 +128,34 @@ export default function Atelier() {
                   <button
                     type="button"
                     onMouseEnter={() => setActive(i)}
-                    onMouseLeave={() => setActive(null)}
+                    onMouseLeave={() => {}}
                     onFocus={() => setActive(i)}
-                    onBlur={() => setActive(null)}
-                    onClick={() => setActive(i)}
+                    onClick={() => {
+                      setActive(i)
+                      setIsZoomed(true)
+                    }}
                     aria-pressed={active === i}
-                    className="group flex w-full items-center gap-4 py-3.5 text-left"
+                    className={`group flex w-full items-center gap-4 py-3.5 text-left transition-colors ${
+                      active === i ? 'bg-white/[0.04] px-2.5 -mx-2.5' : ''
+                    }`}
                   >
                     <span
-                      className="h-9 w-9 shrink-0 border border-white/20 transition-transform duration-500 ease-smooth group-hover:scale-110"
+                      className={`h-9 w-9 shrink-0 border transition-all duration-500 ease-smooth ${
+                        active === i
+                          ? 'scale-110 border-amber-300 shadow-[0_0_12px_rgba(251,191,36,0.35)]'
+                          : 'border-white/20 group-hover:scale-105'
+                      }`}
                       style={{ background: material.swatch }}
                       aria-hidden="true"
                     />
                     <span className="min-w-0 flex-1">
-                      <span className="subhead block text-[16px] text-chalk">
+                      <span className="subhead flex items-center gap-2 text-[16px] text-chalk">
                         {material.name}
+                        {active === i && (
+                          <span className="font-mono text-[9px] uppercase tracking-widest text-amber-300/90 border border-amber-300/30 px-1.5 py-0.5">
+                            {isZoomed ? 'Zoomed Close Shot' : 'Active'}
+                          </span>
+                        )}
                       </span>
                       <span className="lbl mt-1 block text-chalk/45">
                         {material.finish} · {material.note}
@@ -145,7 +167,7 @@ export default function Atelier() {
                       height="18"
                       class={`shrink-0 transition-all duration-500 ease-smooth ${
                         active === i
-                          ? 'translate-x-0 text-chalk'
+                          ? 'translate-x-0 text-amber-300'
                           : '-translate-x-1 text-chalk/30 group-hover:translate-x-0 group-hover:text-chalk/70'
                       }`}
                     />
@@ -156,8 +178,9 @@ export default function Atelier() {
             </ul>
 
             <p className="copy mt-6 text-[12.5px] lg:mt-auto lg:pt-6">
-              The room above is lit through a single aperture — the way we plan lighting on site.
-              Scroll to walk the camera in, then move your cursor across the finishes.
+              The living pavilion above illustrates these four core finishes in natural daylight.
+              Move your cursor across the room to experience the parallax perspective, tap the
+              pins, or inspect the 1:1 macro tactile textures.
             </p>
           </div>
         </div>

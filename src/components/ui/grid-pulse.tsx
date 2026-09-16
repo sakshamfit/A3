@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { cn } from "@/lib/utils"
 
 export interface GridPulseProps {
@@ -10,108 +10,218 @@ export interface GridPulseProps {
   fadeMs?: number
 }
 
+interface SnakeSegment {
+  gx: number
+  gy: number
+  time: number
+}
+
 /**
- * Grid Pulse — carolinaraulino inspired
- * A hairline grid that lights up in a spectrum wherever the pointer passes,
- * then fades a moment later. Used in footer.
- *
- * Implementation: CSS grid of divs with hairline borders; on pointer move
- * the nearest cells are lit with a timed fade. Spectrum cycles rose → ink → oak.
+ * Grid Pulse with Yellow Snake Trail Animation
+ * Renders a crisp background grid on canvas. When the user moves their cursor
+ * over the footer, a luminous yellow snake trail slithers and tracks the cursor
+ * through the grid cells with authentic snake segment dynamics and glowing warmth.
  */
 export function GridPulse({
   className,
-  cellSize = 28,
+  cellSize = 26,
   gap = 1,
-  fadeMs = 720,
 }: GridPulseProps) {
-  const ref = useRef<HTMLDivElement | null>(null)
-  const [lit, setLit] = useState<Map<string, number>>(new Map())
-  const rafRef = useRef<number | null>(null)
+  const containerRef = useRef<HTMLDivElement | null>(null)
+  const canvasRef = useRef<HTMLCanvasElement | null>(null)
 
   useEffect(() => {
-    const el = ref.current
-    if (!el) return
+    const container = containerRef.current
+    const canvas = canvasRef.current
+    if (!container || !canvas) return
 
-    const handlePointer = (e: PointerEvent) => {
-      const rect = el.getBoundingClientRect()
-      // only react when pointer is inside footer bounds (even if over content)
+    const ctx = canvas.getContext("2d")
+    if (!ctx) return
+
+    let animationId: number
+    let width = (canvas.width = container.clientWidth)
+    let height = (canvas.height = container.clientHeight)
+
+    // Snake state
+    const snake: SnakeSegment[] = []
+    const maxSnakeLength = 22
+    let targetGx = -1
+    let targetGy = -1
+    let isHovered = false
+
+    const handleResize = () => {
+      if (!container || !canvas) return
+      const dpr = Math.min(window.devicePixelRatio || 1, 2)
+      width = container.clientWidth
+      height = container.clientHeight
+      canvas.width = width * dpr
+      canvas.height = height * dpr
+      canvas.style.width = `${width}px`
+      canvas.style.height = `${height}px`
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+    }
+
+    handleResize()
+    window.addEventListener("resize", handleResize)
+
+    const handlePointerMove = (e: PointerEvent) => {
+      const rect = container.getBoundingClientRect()
       if (
         e.clientX < rect.left ||
         e.clientX > rect.right ||
         e.clientY < rect.top ||
         e.clientY > rect.bottom
-      )
+      ) {
+        isHovered = false
         return
-      const x = e.clientX - rect.left
-      const y = e.clientY - rect.top
-      const col = Math.floor(x / (cellSize + gap))
-      const row = Math.floor(y / (cellSize + gap))
-      const now = performance.now()
+      }
+      isHovered = true
+      const mouseX = e.clientX - rect.left
+      const mouseY = e.clientY - rect.top
 
-      // light this cell + neighbours in a small radius with stagger
-      setLit((prev) => {
-        const next = new Map(prev)
-        const radius = 1
-        for (let dx = -radius; dx <= radius; dx++) {
-          for (let dy = -radius; dy <= radius; dy++) {
-            const dist = Math.abs(dx) + Math.abs(dy)
-            if (dist > 1.5) continue
-            const k = `${col + dx}:${row + dy}`
-            next.set(k, now + dist * 90)
-          }
-        }
-        // keep map bounded
-        if (next.size > 400) {
-          const entries = [...next.entries()].slice(-300)
-          return new Map(entries)
-        }
-        return next
-      })
+      const step = cellSize + gap
+      const newGx = Math.floor(mouseX / step)
+      const newGy = Math.floor(mouseY / step)
+
+      targetGx = newGx
+      targetGy = newGy
+
+      // If snake is empty, seed it
+      if (snake.length === 0) {
+        snake.push({ gx: newGx, gy: newGy, time: performance.now() })
+      }
     }
 
-    // listen on window so footer content above doesn't block events
-    window.addEventListener("pointermove", handlePointer, { passive: true })
-    // also listen directly on element for enter
-    el.addEventListener("pointerenter", handlePointer as EventListener, { passive: true } as AddEventListenerOptions)
+    const handlePointerLeave = () => {
+      isHovered = false
+    }
+
+    window.addEventListener("pointermove", handlePointerMove, { passive: true })
+    container.addEventListener("pointerleave", handlePointerLeave)
+
+    let lastStepTime = performance.now()
+
+    const render = (now: number) => {
+      ctx.clearRect(0, 0, width, height)
+
+      const step = cellSize + gap
+      const cols = Math.ceil(width / step) + 1
+      const rows = Math.ceil(height / step) + 1
+
+      // 1. Draw hairline background grid
+      ctx.strokeStyle = "rgba(255, 255, 255, 0.045)"
+      ctx.lineWidth = 1
+
+      ctx.beginPath()
+      for (let c = 0; c <= cols; c++) {
+        const x = c * step
+        ctx.moveTo(x, 0)
+        ctx.lineTo(x, height)
+      }
+      for (let r = 0; r <= rows; r++) {
+        const y = r * step
+        ctx.moveTo(0, y)
+        ctx.lineTo(width, y)
+      }
+      ctx.stroke()
+
+      // 2. Advance snake towards cursor in a slithering motion
+      if (isHovered && targetGx >= 0 && targetGy >= 0) {
+        // Slither step every 35ms for a fast, responsive, snake-like crawl
+        if (now - lastStepTime > 32) {
+          lastStepTime = now
+          const head = snake[0] || { gx: targetGx, gy: targetGy, time: now }
+
+          if (head.gx !== targetGx || head.gy !== targetGy) {
+            // Pick next grid cell toward target with slight snake slither behavior
+            let nextGx = head.gx
+            let nextGy = head.gy
+
+            const dx = targetGx - head.gx
+            const dy = targetGy - head.gy
+
+            // Alternate axes occasionally to look like a true slithering snake
+            if (Math.abs(dx) > Math.abs(dy)) {
+              nextGx += Math.sign(dx)
+            } else if (dy !== 0) {
+              nextGy += Math.sign(dy)
+            } else if (dx !== 0) {
+              nextGx += Math.sign(dx)
+            }
+
+            snake.unshift({ gx: nextGx, gy: nextGy, time: now })
+
+            if (snake.length > maxSnakeLength) {
+              snake.pop()
+            }
+          }
+        }
+      } else {
+        // Slowly shrink snake when pointer leaves
+        if (now - lastStepTime > 40 && snake.length > 0) {
+          lastStepTime = now
+          snake.pop()
+        }
+      }
+
+      // 3. Render the snake with glowing yellow color
+      if (snake.length > 0) {
+        ctx.save()
+        for (let i = snake.length - 1; i >= 0; i--) {
+          const seg = snake[i]
+          const ratio = 1 - i / snake.length // 1 at head, 0 at tail
+          const px = seg.gx * step
+          const py = seg.gy * step
+
+          // Segment color in vivid luminous yellow (from #facc15 to golden amber)
+          const isHead = i === 0
+          const alpha = isHead ? 0.95 : Math.max(0.12, ratio * 0.85)
+
+          // Glowing shadow
+          ctx.shadowColor = "rgba(250, 204, 21, 0.8)"
+          ctx.shadowBlur = isHead ? 14 : Math.round(ratio * 10)
+
+          // Filled grid block
+          ctx.fillStyle = `rgba(250, 204, 21, ${alpha})`
+          const pad = isHead ? 1 : 2
+          ctx.fillRect(
+            px + pad,
+            py + pad,
+            cellSize - pad * 2,
+            cellSize - pad * 2
+          )
+
+          // Accent border for head & leading segments
+          if (ratio > 0.4) {
+            ctx.strokeStyle = `rgba(255, 245, 150, ${Math.min(1, alpha + 0.2)})`
+            ctx.lineWidth = isHead ? 2 : 1
+            ctx.strokeRect(
+              px + pad,
+              py + pad,
+              cellSize - pad * 2,
+              cellSize - pad * 2
+            )
+          }
+        }
+        ctx.restore()
+      }
+
+      animationId = requestAnimationFrame(render)
+    }
+
+    animationId = requestAnimationFrame(render)
 
     return () => {
-      window.removeEventListener("pointermove", handlePointer)
-      el.removeEventListener("pointerenter", handlePointer as EventListener)
-      if (rafRef.current) cancelAnimationFrame(rafRef.current)
+      window.removeEventListener("resize", handleResize)
+      window.removeEventListener("pointermove", handlePointerMove)
+      container.removeEventListener("pointerleave", handlePointerLeave)
+      cancelAnimationFrame(animationId)
     }
   }, [cellSize, gap])
 
-  // cleanup faded cells on frame
-  useEffect(() => {
-    let alive = true
-    const tick = () => {
-      if (!alive) return
-      const now = performance.now()
-      setLit((prev) => {
-        let changed = false
-        const next = new Map(prev)
-        for (const [k, t] of prev) {
-          if (now - t > fadeMs + 400) {
-            next.delete(k)
-            changed = true
-          }
-        }
-        return changed ? next : prev
-      })
-      rafRef.current = requestAnimationFrame(tick)
-    }
-    rafRef.current = requestAnimationFrame(tick)
-    return () => {
-      alive = false
-      if (rafRef.current) cancelAnimationFrame(rafRef.current)
-    }
-  }, [fadeMs])
-
-  const now = performance.now()
-
   return (
     <div
-      ref={ref}
+      ref={containerRef}
       className={cn(
         "pointer-events-none absolute inset-0 overflow-hidden bg-stone-900",
         "border-t border-white/10",
@@ -119,59 +229,10 @@ export function GridPulse({
       )}
       aria-hidden="true"
     >
-      {/* hairline grid */}
-      <div
-        className="absolute inset-0"
-        style={{
-          display: "grid",
-          gridTemplateColumns: `repeat(auto-fill, ${cellSize}px)`,
-          gridAutoRows: `${cellSize}px`,
-          gap: `${gap}px`,
-          padding: `${gap}px`,
-          // center visually?
-        }}
-      >
-        {Array.from({ length: 420 }).map((_, i) => {
-          const col = i % 28
-          const row = Math.floor(i / 28)
-          const key = `${col}:${row}`
-          const litAt = lit.get(key)
-          const age = litAt ? now - litAt : Infinity
-          const isLit = age < fadeMs
-          const progress = isLit ? 1 - age / fadeMs : 0 // 1→0
-          return (
-            <div
-              key={i}
-              className="relative rounded-[2px] border border-white/[0.07] bg-white/[0.02] transition-colors duration-200"
-              style={
-                isLit
-                  ? {
-                      background:
-                        progress > 0.6
-                          ? `rgba(201,139,146,${0.18 + progress * 0.22})`
-                          : progress > 0.3
-                            ? `rgba(255,255,255,${0.09 + progress * 0.08})`
-                            : `rgba(154,107,63,${0.10 + progress * 0.06})`,
-                      borderColor:
-                        progress > 0.5
-                          ? `rgba(201,139,146,${0.38 * progress})`
-                          : `rgba(255,255,255,${0.14 * progress})`,
-                      boxShadow:
-                        progress > 0.5
-                          ? `0 0 ${12 * progress}px rgba(201,139,146,${0.22 * progress})`
-                          : "none",
-                      transform: `scale(${0.98 + progress * 0.03})`,
-                    }
-                  : undefined
-              }
-            />
-          )
-        })}
-      </div>
-
-      {/* vignette */}
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/40 to-transparent" />
-      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-stone-900/20 to-transparent" />
+      <canvas ref={canvasRef} className="absolute inset-0 block h-full w-full" />
+      {/* soft edge vignettes */}
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-stone-900 via-stone-900/30 to-transparent" />
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-b from-stone-900/30 to-transparent" />
     </div>
   )
 }

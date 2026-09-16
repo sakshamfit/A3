@@ -12,13 +12,13 @@ export default function Studio() {
     <>
       <section className="bg-bone pt-[calc(var(--nav-h)+36px)]">
         <div className="wrap pb-8">
-          <p className="lbl text-ink/40">Studio · Index 03</p>
+          <p className="lbl text-ink/40">Developers · Index 03</p>
           <h1 className="headline mt-3 max-w-[18ch] text-ink">
             The people who <span className="accent">draw and build</span>
           </h1>
           <p className="lede mt-4 max-w-[58ch] text-ink/60">
             No sales team. You brief the people who measure your walls and set
-            your stone. Studio is on the second floor of Azeet Plaza — the same
+            your stone. Our developers are on the second floor of Azeet Plaza — the same
             roof where the shutters are made.
           </p>
           <div className="mt-6 flex flex-wrap items-center gap-3">

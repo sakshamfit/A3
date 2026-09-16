@@ -83,7 +83,7 @@ export function StackSpread({ items = DEFAULT_ITEMS, className }: StackSpreadPro
         </div>
 
         {/* cards stage */}
-        <div className="relative h-[420px] w-full max-w-[1080px] px-6 sm:h-[460px]">
+        <div className="relative h-[380px] w-full max-w-[1080px] px-6 sm:h-[420px]">
           {items.map((item, i) => {
             const n = items.length
             // stacked: all centered with slight offset/rotate, linear
@@ -93,7 +93,7 @@ export function StackSpread({ items = DEFAULT_ITEMS, className }: StackSpreadPro
             // transforms driven by spread — responsive x to avoid mobile overflow
             const x = useTransform(spread, (v) => {
               const isMobile = typeof window !== "undefined" ? window.innerWidth < 768 : false
-              const gap = isMobile ? 124 : 210
+              const gap = isMobile ? 120 : 205
               return idx * gap * v + i * 1.1 * (1 - v)
             })
             const y = useTransform(spread, (v) => -Math.abs(idx) * 8 * v + i * 3 * (1 - v))
@@ -105,7 +105,7 @@ export function StackSpread({ items = DEFAULT_ITEMS, className }: StackSpreadPro
               <motion.div
                 key={item.title + i}
                 style={{ x, y, rotate, scale, opacity, zIndex: n - i }}
-                className="absolute left-1/2 top-1/2 h-[320px] w-[260px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-[0_16px_40px_rgba(26,26,26,0.12)] sm:h-[360px] sm:w-[300px]"
+                className="absolute left-1/2 top-1/2 h-[300px] w-[250px] -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-2xl border border-ink/10 bg-white shadow-[0_16px_40px_rgba(26,26,26,0.12)] sm:h-[340px] sm:w-[280px]"
               >
                 <div className="relative h-full w-full">
                   <img
@@ -135,9 +135,9 @@ export function StackSpread({ items = DEFAULT_ITEMS, className }: StackSpreadPro
         {/* bottom caption morphs with spread */}
         <motion.div
           style={{ opacity: useTransform(spread, [0, 0.35], [0.6, 1]) }}
-          className="pointer-events-none absolute inset-x-0 bottom-8 z-10 flex justify-center px-6"
+          className="pointer-events-none absolute inset-x-0 bottom-6 z-10 flex justify-center px-6"
         >
-          <div className="rounded-full border border-ink/10 bg-white/80 px-4 py-2 text-center text-[12px] tracking-wide text-ink/60 backdrop-blur">
+          <div className="rounded-full border border-ink/10 bg-white/90 px-4 py-1.5 text-center text-[12px] tracking-wide text-ink/70 backdrop-blur shadow-sm">
             Linear stack — then spatial spread as you scroll
           </div>
         </motion.div>

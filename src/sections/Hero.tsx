@@ -2,7 +2,7 @@ import { gsap, SplitText, useGsap } from '../lib/gsap'
 import { BUSINESS, IMAGES } from '../lib/site'
 
 const HERO_FACTS = [
-  { label: 'Studio', value: 'Azeet Plaza, Commercial Road' },
+  { label: 'Developers', value: 'Azeet Plaza, Commercial Road' },
   { label: 'Locality', value: 'Taramandal, Gorakhpur 273001' },
   { label: 'Hours', value: 'Daily · 10 am – 10 pm' },
 ]
@@ -161,7 +161,7 @@ export default function Hero() {
 
         <div data-hero-copy className="wrap mt-8 flex flex-col gap-6 pb-8 sm:flex-row sm:items-end sm:justify-between">
           <p data-reveal className="lede text-chalk/70">
-            {BUSINESS.description} Designed, drawn and built by one studio — for homes
+            {BUSINESS.description} Designed, drawn and built by our team of developers — for homes
             and businesses across Gorakhpur and nearby Uttar Pradesh.
           </p>
           <div data-reveal className="flex flex-wrap items-center gap-3">

@@ -73,7 +73,7 @@ export default function Contact() {
             Contact
           </p>
           <h2 data-reveal className="headline mt-4 max-w-[16ch] text-ink">
-            Come see the <span className="accent">studio</span>
+            Come see our <span className="accent">developers</span>
           </h2>
           <p data-reveal className="lede mt-4 text-ink/60">
             {BUSINESS.description} Walk in for a free consultation, bring your floor plan — or
@@ -293,7 +293,7 @@ export default function Contact() {
               <p className="copy text-[12px] text-ink/50" aria-live="polite">
                 {sent
                   ? 'WhatsApp is opening with your details.'
-                  : 'Sends your details straight to the studio on WhatsApp — nothing is stored on this site.'}
+                  : 'Sends your details straight to our developers on WhatsApp — nothing is stored on this site.'}
               </p>
             </div>
           </form>

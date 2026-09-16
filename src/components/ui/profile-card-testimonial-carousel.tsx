@@ -89,7 +89,7 @@ export function ProfileCardTestimonialCarousel({
       onBlurCapture={() => setPaused(false)}
       role="region"
       aria-roledescription="carousel"
-      aria-label="Meet the studio"
+      aria-label="Meet the developers"
     >
       <div className="relative mx-auto w-full max-w-[1080px]">
         {/* main card */}

@@ -36,7 +36,7 @@ export default function Footer() {
 
           <div className="grid gap-8 sm:grid-cols-2 md:max-w-md md:gap-12">
             <div>
-              <p className="lbl text-stone-500">Studio</p>
+              <p className="lbl text-stone-500">Developers</p>
               <p className="copy mt-3 text-[13px] text-stone-400">
                 {BUSINESS.addressLines.join(', ')}
               </p>

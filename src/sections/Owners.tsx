@@ -19,7 +19,7 @@ export default function Owners() {
             The people behind A3
           </p>
           <h2 data-reveal className="headline mt-3 text-ink">
-            Meet the <span className="accent">studio</span>
+            Meet the <span className="accent">developers</span>
           </h2>
           <p data-reveal className="lede mx-auto mt-4 text-ink/60">
             No sales team in between. You brief the people who will measure your
@@ -59,7 +59,7 @@ export default function Owners() {
             rel="noreferrer"
             className="btn shrink-0"
           >
-            Meet us at the studio
+            Meet the developers
             <span className="ar" aria-hidden="true">
               →
             </span>

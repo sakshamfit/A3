@@ -10,7 +10,7 @@ export default function ContactPage() {
         <div className="wrap pb-6">
           <p className="lbl text-ink/40">Contact · Index</p>
           <h1 className="headline mt-3 text-ink">
-            Come see the <span className="accent">studio</span>
+            Come see our <span className="accent">developers</span>
           </h1>
           <p className="lede mt-3 max-w-[52ch] text-ink/60">
             Second Floor, Azeet Plaza — bring your floor plan or just your

@@ -6,7 +6,7 @@ import { BUSINESS } from '../lib/site'
 const MENU_LINKS = [
   { label: 'Home', to: '/', icon: 'solar:gallery-linear', desc: 'Hero · Philosophy · Residences' },
   { label: 'Works', to: '/works', icon: 'solar:layers-minimalistic-linear', desc: 'Stack Spread · Flip · Gallery' },
-  { label: 'Studio', to: '/studio', icon: 'solar:users-group-rounded-linear', desc: 'Owners · Atelier' },
+  { label: 'Developers', to: '/studio', icon: 'solar:users-group-rounded-linear', desc: 'Owners · Atelier' },
   { label: 'Process', to: '/process', icon: 'solar:maximize-square-linear', desc: 'Shell → Finished · Reviews' },
   { label: 'Gallery', to: '/gallery', icon: 'solar:gallery-linear', desc: 'Mosaic of 18 rooms' },
   { label: 'Contact', to: '/contact', icon: 'solar:letter-linear', desc: 'Visit · Enquire' },
@@ -58,7 +58,7 @@ export default function Navbar() {
               Works
             </Link>
             <Link to="/studio" className="lbl u hidden md:inline-block">
-              Studio
+              Developers
             </Link>
             <Link to="/contact" className="lbl u hidden lg:inline-block">
               Enquire
@@ -161,7 +161,7 @@ export default function Navbar() {
 
             <div className="mt-auto grid gap-6 border-t border-ink/10 pt-6 sm:grid-cols-3">
               <div>
-                <p className="lbl text-ink/40">Studio</p>
+                <p className="lbl text-ink/40">Developers</p>
                 <p className="copy mt-3 text-[13px] text-ink/70">
                   {BUSINESS.addressLines.join(', ')}
                 </p>

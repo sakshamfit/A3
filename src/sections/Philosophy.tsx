@@ -4,17 +4,17 @@ import { BUSINESS, IMAGES, METRICS } from '../lib/site'
 const AMENITIES = [
   {
     icon: 'solar:maximize-square-linear',
-    label: 'Full-home scope',
+    label: 'FULL-HOME SCOPE',
     copy: 'Every room, including the ones nobody photographs.',
   },
   {
     icon: 'solar:bed-linear',
-    label: 'Modular kitchens & wardrobes',
+    label: 'MODULAR KITCHENS & WARDROBES',
     copy: 'Built in our workshop, fitted on site to the millimetre.',
   },
   {
     icon: 'solar:tag-price-linear',
-    label: 'Fixed estimates',
+    label: 'FIXED ESTIMATES',
     copy: 'One agreed price, itemised before work begins.',
   },
 ] as const
@@ -123,7 +123,7 @@ export default function Philosophy() {
               Our philosophy
             </p>
             <h2 data-reveal className="headline mt-4 max-w-[20ch] text-ink">
-              One studio from the first sketch to the <span className="accent">last handle</span>
+              One team of developers from the first sketch to the <span className="accent">last handle</span>
             </h2>
           </div>
 
@@ -146,7 +146,7 @@ export default function Philosophy() {
                 </span>
               </a>
               <a href={BUSINESS.mapsUrl} target="_blank" rel="noreferrer" className="tlink">
-                Visit the studio
+                Visit our developers
                 <span className="ar" aria-hidden="true">
                   →
                 </span>
