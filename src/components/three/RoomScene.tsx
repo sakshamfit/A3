@@ -1,14 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import * as THREE from 'three'
-import {
-  Sparkles,
-  ZoomIn,
-  ZoomOut,
-  Box,
-  ChevronLeft,
-  ChevronRight,
-  Minimize2,
-} from 'lucide-react'
+import { ZoomIn, ZoomOut, Box, ChevronLeft, ChevronRight } from 'lucide-react'
 import { MATERIALS } from '../../lib/site'
 import { prefersReducedMotion } from '../../lib/gsap'
 import { cn } from '../../lib/utils'
@@ -427,21 +419,6 @@ export default function RoomScene({
               aria-hidden="true"
             />
 
-            {/* Warm spotlight that follows the active finish across the room */}
-            {!isZoomed && (
-              <div
-                className="pointer-events-none absolute h-56 w-56 -translate-x-1/2 -translate-y-1/2 rounded-full transition-all duration-700 ease-smooth"
-                style={{
-                  left: `${activeAt.x}%`,
-                  top: `${activeAt.y}%`,
-                  background:
-                    'radial-gradient(circle, rgba(245, 215, 170, 0.30) 0%, rgba(245, 215, 170, 0.07) 45%, transparent 70%)',
-                  boxShadow: '0 0 80px 20px rgba(235, 195, 140, 0.14)',
-                }}
-                aria-hidden="true"
-              />
-            )}
-
             {/* One dot per finish, placed on the surface it belongs to. */}
             <div
               className={`transition-opacity duration-500 ${
@@ -495,184 +472,107 @@ export default function RoomScene({
             </div>
           </div>
 
-          {/* -------------------------------- CLOSE SHOT / MACRO OVERLAY (Revealed when Zoomed) */}
+          {/* -------------------------------- CLOSE SHOT / MACRO OVERLAY (Revealed when Zoomed)
+              Deliberately wordless: the texture fills the frame, one line says
+              what it is, four dots move between finishes. The spec copy that
+              used to sit on top of the macro now lives in the list beside the
+              board, where it can be read without covering the photograph. */}
           <div
-            className={`absolute inset-0 z-30 transition-all duration-700 ease-smooth flex flex-col justify-between ${
-              isZoomed
-                ? 'opacity-100 pointer-events-auto backdrop-blur-[1px]'
-                : 'opacity-0 pointer-events-none'
+            className={`absolute inset-0 z-30 flex flex-col justify-between transition-all duration-700 ease-smooth ${
+              isZoomed ? 'opacity-100 pointer-events-auto' : 'pointer-events-none opacity-0'
             }`}
           >
-            {/* Macro Texture Stage with Optical Vignette and Lens reticle */}
             <div className="absolute inset-0 overflow-hidden bg-inkdeep">
               <img
                 src={currentMaterial.macroImage}
                 alt={`${currentMaterial.name} 1:1 macro tactile close shot`}
                 className="h-full w-full object-cover object-center transition-transform duration-300 ease-out will-change-transform"
                 style={{
-                  transform: `scale(1.08) translate(${macroPan.x}px, ${macroPan.y}px)`,
+                  transform: `scale(1.06) translate(${macroPan.x}px, ${macroPan.y}px)`,
                 }}
               />
 
-              {/* Optical Lens Vignette */}
+              {/* hairline vignette, only enough to keep the two bars readable */}
               <div
-                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-inkdeep/95 via-inkdeep/25 to-inkdeep/70"
-                aria-hidden="true"
-              />
-              <div
-                className="pointer-events-none absolute inset-0 bg-radial-vignette opacity-70"
-                style={{
-                  background:
-                    'radial-gradient(circle at center, transparent 35%, rgba(14,13,12,0.85) 100%)',
-                }}
+                className="pointer-events-none absolute inset-0 bg-gradient-to-t from-inkdeep/70 via-transparent to-inkdeep/40"
                 aria-hidden="true"
               />
 
-              {/* Architectural Viewfinder Crosshairs & Frame Brackets */}
-              <div
-                className="pointer-events-none absolute inset-6 sm:inset-10 border border-white/10"
-                aria-hidden="true"
-              >
-                {/* Corner reticle marks */}
-                <div className="absolute -left-1 -top-1 h-3 w-3 border-l-2 border-t-2 border-amber-300" />
-                <div className="absolute -right-1 -top-1 h-3 w-3 border-r-2 border-t-2 border-amber-300" />
-                <div className="absolute -bottom-1 -left-1 h-3 w-3 border-b-2 border-l-2 border-amber-300" />
-                <div className="absolute -bottom-1 -right-1 h-3 w-3 border-b-2 border-r-2 border-amber-300" />
-
-                {/* Center subtle crosshair */}
-                <div className="absolute left-1/2 top-1/2 h-4 w-4 -translate-x-1/2 -translate-y-1/2 opacity-40">
-                  <div className="absolute left-1/2 top-0 h-4 w-[1px] -translate-x-1/2 bg-chalk" />
-                  <div className="absolute left-0 top-1/2 h-[1px] w-4 -translate-y-1/2 bg-chalk" />
-                </div>
+              {/* four viewfinder marks — the only ornament */}
+              <div className="pointer-events-none absolute inset-3 sm:inset-5" aria-hidden="true">
+                <span className="absolute left-0 top-0 h-2.5 w-2.5 border-l border-t border-amber-300/70" />
+                <span className="absolute right-0 top-0 h-2.5 w-2.5 border-r border-t border-amber-300/70" />
+                <span className="absolute bottom-0 left-0 h-2.5 w-2.5 border-b border-l border-amber-300/70" />
+                <span className="absolute bottom-0 right-0 h-2.5 w-2.5 border-b border-r border-amber-300/70" />
               </div>
             </div>
 
-            {/* TOP BAR: Zoom status, finish navigator, and Zoom Out CTA */}
-            <div className="relative z-40 flex items-center justify-between p-4 sm:p-6">
-              {/* Left Badge: Close shot mode */}
-              <div className="flex items-center gap-2.5 border border-amber-300/40 bg-ink/90 px-3 py-1.5 backdrop-blur-md">
-                <Sparkles className="h-3.5 w-3.5 text-amber-300" />
-                <span className="font-mono text-[10.5px] sm:text-[11px] uppercase tracking-widest text-amber-200">
-                  1:1 Macro Close Shot · 0{activeIdx + 1} {currentMaterial.name}
-                </span>
-              </div>
-
-              {/* Center material switcher arrows (glide between close shots) */}
-              <div className="hidden sm:flex items-center gap-1 border border-white/15 bg-ink/85 p-1 backdrop-blur-md">
-                <button
-                  type="button"
-                  onClick={handlePrevMaterial}
-                  className="flex h-7 w-7 items-center justify-center text-chalk/70 hover:bg-white/10 hover:text-chalk transition-colors"
-                  aria-label="Previous material close shot"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <div className="flex items-center gap-1 px-1">
-                  {MATERIALS.map((mat, i) => (
-                    <button
-                      key={mat.name}
-                      type="button"
-                      onClick={() => onSelectMaterial?.(i)}
-                      className={`h-5 px-2 text-[10px] font-mono uppercase tracking-wider transition-all border ${
-                        activeIdx === i
-                          ? 'border-amber-300 bg-amber-300/20 text-amber-200'
-                          : 'border-transparent text-chalk/50 hover:text-chalk'
-                      }`}
-                    >
-                      0{i + 1}
-                    </button>
-                  ))}
-                </div>
-                <button
-                  type="button"
-                  onClick={handleNextMaterial}
-                  className="flex h-7 w-7 items-center justify-center text-chalk/70 hover:bg-white/10 hover:text-chalk transition-colors"
-                  aria-label="Next material close shot"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-
-              {/* Right: Explicit Zoom Out button */}
+            {/* top right — the only control up here, and it says nothing */}
+            <div className="relative z-40 flex items-start justify-end p-3 sm:p-4">
               <button
                 type="button"
                 onClick={() => setZoom(false)}
-                className="group/zoomout flex items-center gap-2 border border-amber-300/70 bg-amber-400 px-3.5 py-1.5 text-ink font-semibold shadow-lg backdrop-blur-md transition-all hover:bg-amber-300 hover:scale-102 focus:outline-none cursor-pointer"
-                title="Zoom back out to the full architectural living room"
+                aria-label="Zoom back out to the room"
+                title="Zoom back out · Esc"
+                className="flex h-8 w-8 items-center justify-center border border-white/20 bg-ink/70 text-chalk/80 backdrop-blur-md transition-colors hover:border-amber-300/60 hover:text-chalk focus:outline-none"
               >
-                <ZoomOut className="h-3.5 w-3.5 transition-transform duration-300 group-hover/zoomout:scale-115" />
-                <span className="font-mono text-[11px] uppercase tracking-wider">
-                  Zoom Out
-                </span>
-                <span className="hidden sm:inline text-[9.5px] font-mono text-ink/70 border-l border-ink/30 pl-1.5">
-                  ESC
-                </span>
+                <ZoomOut className="h-4 w-4" />
               </button>
             </div>
 
-            {/* BOTTOM BAR: Material Specifications & Mini Room Locator Map */}
-            <div className="relative z-40 flex flex-col sm:flex-row sm:items-end justify-between gap-4 p-4 sm:p-6">
-              {/* Material Spec Card */}
-              <div className="max-w-[48ch] border border-white/20 bg-ink/90 p-4 backdrop-blur-md shadow-2xl">
-                <div className="flex items-center justify-between gap-3 border-b border-white/10 pb-2.5">
-                  <div className="flex items-center gap-2.5">
-                    <span
-                      className="h-3.5 w-3.5 border border-white/30 shrink-0"
-                      style={{ backgroundColor: currentMaterial.swatch }}
-                    />
-                    <h4 className="font-serif text-lg text-chalk tracking-tight">
-                      {currentMaterial.name}
-                    </h4>
-                  </div>
-                  <span className="font-mono text-[10px] uppercase tracking-widest text-amber-300 border border-amber-300/30 px-2 py-0.5">
-                    {currentMaterial.finish} Finish
-                  </span>
-                </div>
+            {/* bottom — one line to name the finish, four dots to change it */}
+            <div className="relative z-40 flex items-end justify-between gap-4 p-3 sm:p-4">
+              <p className="flex min-w-0 items-center gap-2.5">
+                <span
+                  className="h-3 w-3 shrink-0 border border-white/25"
+                  style={{ backgroundColor: currentMaterial.swatch }}
+                  aria-hidden="true"
+                />
+                <span className="truncate font-mono text-[11px] uppercase tracking-wider text-chalk/85">
+                  {currentMaterial.name} · {currentMaterial.finish}
+                </span>
+              </p>
 
-                <div className="mt-2.5 space-y-1.5 text-[12px] text-chalk/80 leading-relaxed">
-                  <p>
-                    <strong className="text-chalk font-medium">Tactile Spec: </strong>
-                    {currentMaterial.specs}
-                  </p>
-                  <p className="text-chalk/65">
-                    <strong className="text-chalk/85 font-medium">In-Situ Use: </strong>
-                    {currentMaterial.application}
-                  </p>
-                </div>
-              </div>
-
-              {/* Mini Room Spatial Locator */}
-              <div className="hidden md:flex flex-col items-end gap-1.5">
+              <div className="flex shrink-0 items-center gap-1 border border-white/15 bg-ink/70 p-1 backdrop-blur-md">
                 <button
                   type="button"
-                  onClick={() => setZoom(false)}
-                  className="group/mini relative h-16 w-24 overflow-hidden border border-white/25 bg-black transition-all hover:border-amber-300 cursor-pointer shadow-lg"
-                  title="Click to zoom back out to full room"
+                  onClick={handlePrevMaterial}
+                  aria-label="Previous finish"
+                  className="flex h-6 w-6 items-center justify-center text-chalk/65 transition-colors hover:text-chalk focus:outline-none"
                 >
-                  <img
-                    src="/images/material-board-room.jpg"
-                    alt="Full room reference"
-                    className="h-full w-full object-cover opacity-60 transition-opacity group-hover/mini:opacity-90"
-                  />
-                  {/* Location beacon in mini map */}
-                  <span
-                    className="absolute h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border border-amber-300 bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,1)]"
-                    style={{
-                      left: `${currentMaterial.hotspot.x}%`,
-                      top: `${currentMaterial.hotspot.y}%`,
-                    }}
-                  />
-                  <div className="absolute inset-0 flex items-center justify-center bg-ink/40 opacity-0 transition-opacity group-hover/mini:opacity-100">
-                    <Minimize2 className="h-4 w-4 text-chalk" />
-                  </div>
+                  <ChevronLeft className="h-3.5 w-3.5" />
                 </button>
-                <p className="font-mono text-[9px] uppercase tracking-widest text-chalk/50">
-                  Full Room Context
-                </p>
+                {MATERIALS.map((mat, i) => (
+                  <button
+                    key={mat.name}
+                    type="button"
+                    onClick={() => onSelectMaterial?.(i)}
+                    aria-label={`${mat.name} close shot`}
+                    aria-current={activeIdx === i}
+                    className={`flex h-6 w-6 items-center justify-center focus:outline-none ${
+                      activeIdx === i ? '' : 'opacity-60 hover:opacity-100'
+                    }`}
+                  >
+                    <span
+                      className={`h-2 w-2 rounded-full border transition-all duration-300 ${
+                        activeIdx === i
+                          ? 'scale-125 border-amber-300 bg-amber-300 shadow-[0_0_10px_rgba(251,191,36,0.7)]'
+                          : 'border-white/40 bg-white/25'
+                      }`}
+                    />
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={handleNextMaterial}
+                  aria-label="Next finish"
+                  className="flex h-6 w-6 items-center justify-center text-chalk/65 transition-colors hover:text-chalk focus:outline-none"
+                >
+                  <ChevronRight className="h-3.5 w-3.5" />
+                </button>
               </div>
             </div>
           </div>
-
         </div>
       )}
 

@@ -92,7 +92,7 @@ re-tuned to the A3 palette:
 npm run test:smoke     # builds, then runs the jsdom regression harness
 ```
 
-`tools/smoke/` renders `<App />` into jsdom against the **real built CSS** and asserts 111
+`tools/smoke/` renders `<App />` into jsdom against the **real built CSS** and asserts 114
 properties that are easy to break and hard to notice: that no scroll-revealed element is left
 transparent, that the consultation form and every field in it is visible, the pink palette
 tokens compile to the right `rgb()` values, the Archivo typography contract, scroll-safety, and
@@ -205,6 +205,21 @@ copy lives in the list beside the frame, where it can be read. Two things make t
 Each finish keeps a `macroImage`, the 1:1 close shot the dot zooms into; Smoked Oak's fluted
 panel and Black Stone's leathered monolith must never share a coordinate — the smoke test fails
 if two finishes collide or if either moves onto the other's surface.
+
+**Nothing floats over the picture.** Two things were removed for good, both by demand rather than
+taste:
+
+- the **spotlight disc** (`h-64 w-64` radial gradient) that drifted across the room as the cursor
+  moved — with a parallax tilt already on the plate it read as a torch sweep over the photograph,
+  so the active finish is now marked by its own dot and by the list highlight, nothing else;
+- the **close-shot chrome** — a status badge, an `01–04` numeric switcher, a bordered spec card of
+  two paragraphs and a mini locator map with its own caption, all stacked on the texture. The zoom
+  now says one line (`Smoked Oak · Fluted`, with the swatch as its bullet), moves between finishes
+  with four dots and two chevrons, and exits through a single icon button (`Esc` too).
+
+That spec copy is not gone — `specs` and `application` moved into `[data-material-detail]` at the
+foot of the finish list, where they swap with whatever is active. The harness fails the build if a
+`h-64 w-64` disc returns to the room view or if `RoomScene` renders `currentMaterial.specs` again.
 
 ## Scrolling
 

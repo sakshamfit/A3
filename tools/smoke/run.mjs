@@ -233,6 +233,12 @@ ok('smoked oak and black stone are not on each other', (() => {
   return oak !== stone && oak.startsWith('6,') && stone.startsWith('69,')
 })(), spots.join(' '))
 ok('film grain keyframes ship in the css', /@keyframes\s+noise-animation/.test(css) && /\.grain-veil\{/.test(flat))
+const roomSrc = readFileSync('./src/components/three/RoomScene.tsx', 'utf8')
+// the cursor-tracking spotlight made the room look like a torch sweep, and the
+// spec card over the macro buried the texture — both must stay out
+ok('no spotlight disc tracking the active finish', !/h-64 w-64/.test(roomSrc))
+ok('close shot carries no spec paragraphs', !/currentMaterial\.specs|currentMaterial\.application/.test(roomSrc))
+ok('spec copy moved into the list column', /data-material-detail/.test(readFileSync('./src/sections/Atelier.tsx', 'utf8')) && !!doc.querySelector('#atelier [data-material-detail]'))
 await navigate('/')
 ok('icons as shadow svg (Home)', [...doc.querySelectorAll('iconify-icon')].filter((el) => el.shadowRoot?.querySelector('svg')).length > 30, `${[...doc.querySelectorAll('iconify-icon')].length} icons`)
 

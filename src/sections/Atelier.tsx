@@ -32,6 +32,8 @@ function SceneSkeleton() {
  */
 export default function Atelier() {
   const [active, setActive] = useState<number | null>(0)
+  /** the finish whose spec the list spells out — defaults to the first one */
+  const detail = MATERIALS[active ?? 0]
   const [isZoomed, setIsZoomed] = useState(false)
   const [mountScene, setMountScene] = useState(false)
   const hostRef = useRef<HTMLDivElement | null>(null)
@@ -180,11 +182,20 @@ export default function Atelier() {
               <hr data-rule className="rule" />
             </ul>
 
-            <p className="copy mt-6 text-[12.5px] lg:mt-auto lg:pt-6">
-              The living pavilion above shows these four core finishes in natural daylight, marked
-              with one dot each — on the surface, nothing written over it. Hover a finish here, or
-              tap a dot, and the room lights it; tap again to drop into the 1:1 macro.
-            </p>
+            {/* The specification the zoomed macro used to carry as a card over the
+                texture lives here instead, on the list it belongs to, and swaps as
+                the board is explored. Nothing is written on a photograph now. */}
+            <div data-material-detail className="mt-6 lg:mt-auto lg:pt-6">
+              <hr data-rule className="rule" />
+              <p className="lbl mt-3 text-chalk/40">
+                {detail.name} · {detail.finish} finish
+              </p>
+              <p className="copy mt-2 text-[12.5px] text-chalk/70">{detail.specs}</p>
+              <p className="copy mt-1.5 text-[12px] text-chalk/45">{detail.application}</p>
+              <p className="mt-3 font-mono text-[10px] uppercase tracking-widest text-chalk/30">
+                Tap a dot in the room for the 1:1 macro · Esc returns
+              </p>
+            </div>
           </div>
         </div>
       </div>
