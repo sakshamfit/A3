@@ -215,7 +215,30 @@ ok('panels are articles, not extra page landmarks', doc.querySelectorAll('#proje
 await navigate('/works')
 ok('gallery tiles (Works)', doc.querySelectorAll('#gallery [data-tile]').length === 4, `${doc.querySelectorAll('#gallery [data-tile]').length}`)
 await navigate('/studio')
-ok('material list items (Studio)', doc.querySelectorAll('#atelier button[aria-pressed]').length === 4, `${doc.querySelectorAll('#atelier button[aria-pressed]').length}`)
+ok('material list items (Studio)', doc.querySelectorAll('#atelier ul > li button[aria-pressed]').length === 4, `${doc.querySelectorAll('#atelier ul > li button[aria-pressed]').length}`)
+// the room plate is photograph + dots only — text overlays made it unreadable
+const plate = doc.querySelector('#atelier [data-room-plate]')
+const plateText = (plate?.textContent || '').trim()
+ok('room plate carries no text overlays', !!plate && plateText === '', plateText.slice(0, 40))
+ok('one zoom dot per finish', plate ? plate.querySelectorAll('[data-room-dot]').length === 4 : false, `${plate?.querySelectorAll('[data-room-dot]').length}`)
+ok('dots are placed by the fitted-plate mapping, not by eye', /usePlateBox[\s\S]{0,400}object-contain/.test(readFileSync('./src/components/three/RoomScene.tsx', 'utf8')) || /usePlateBox/.test(readFileSync('./src/components/three/RoomScene.tsx', 'utf8')))
+// every finish must point at its own surface: a shared or swapped coordinate is
+// exactly how Smoked Oak and Black Stone ended up on each other's material
+const siteSrc = readFileSync('./src/lib/site.ts', 'utf8')
+const spots = [...siteSrc.matchAll(/hotspot:\s*\{\s*x:\s*(\d+),\s*y:\s*(\d+)/g)].map((m) => `${m[1]},${m[2]}`)
+ok('material hotspots are all distinct', new Set(spots).size === 4 && spots.length === 4, spots.join(' '))
+ok('smoked oak and black stone are not on each other', (() => {
+  const oak = spots[1] ?? ''
+  const stone = spots[2] ?? ''
+  return oak !== stone && oak.startsWith('6,') && stone.startsWith('69,')
+})(), spots.join(' '))
+ok('film grain keyframes ship in the css', /@keyframes\s+noise-animation/.test(css) && /\.grain-veil\{/.test(flat))
+const roomSrc = readFileSync('./src/components/three/RoomScene.tsx', 'utf8')
+// the cursor-tracking spotlight made the room look like a torch sweep, and the
+// spec card over the macro buried the texture — both must stay out
+ok('no spotlight disc tracking the active finish', !/h-64 w-64/.test(roomSrc))
+ok('close shot carries no spec paragraphs', !/currentMaterial\.specs|currentMaterial\.application/.test(roomSrc))
+ok('spec copy moved into the list column', /data-material-detail/.test(readFileSync('./src/sections/Atelier.tsx', 'utf8')) && !!doc.querySelector('#atelier [data-material-detail]'))
 await navigate('/')
 ok('icons as shadow svg (Home)', [...doc.querySelectorAll('iconify-icon')].filter((el) => el.shadowRoot?.querySelector('svg')).length > 30, `${[...doc.querySelectorAll('iconify-icon')].length} icons`)
 
@@ -305,7 +328,18 @@ ok('css: selection stone-800 / white', /::selection\{[^}]*background-color:rgb\(
 ok('css: image-reveal clip-path + source curve', /clip-path:\s*inset\(0 0 0 0\)/.test(css) && /cubic-bezier\(0?\.16,\s*1,\s*0?\.3,\s*1\)/.test(css))
 ok('css: gallery grayscale 30% -> colour', /grayscale\(30%\)/.test(css) && /grayscale\(100%\)/.test(css))
 ok('expanding residence media is full colour', !/grayscale/.test(doc.querySelector('[data-expand-media]')?.className || ''))
-ok('css: blueprint filter for shell wipe', /\.blueprint\{filter:/.test(flat))
+// the shell side of the wipe is a real plate now, not the finished render run
+// through a colour filter — and /process may say "Shell to finished" only once
+const transformSrc = readFileSync('./src/sections/Transform.tsx', 'utf8')
+ok('shell wipe uses a real under-construction plate', /residenceObsidianShell/.test(transformSrc) && existsSync('./public/images/res-obsidian-shell.jpg'))
+await navigate('/process')
+const wipeImgs = [...(doc.querySelectorAll('#process figure img') || [])]
+ok('wipe figure stacks both plates', wipeImgs.length === 2 && !!wipeImgs[0].getAttribute('alt') && !!wipeImgs[1].getAttribute('alt'), `${wipeImgs.length} plates, ${wipeImgs.filter((i) => (i.getAttribute('alt') || '').length > 10).length} described`)
+// the filter used to do the "under construction" acting; the class must be gone
+// from both the stylesheet and the figure (it may still be named in a comment)
+ok('no .blueprint filter trick left on the wipe', !/\.blueprint\s*\{/.test(flat) && !doc.querySelector('#process .blueprint'))
+const shellHeadings = (doc.body.textContent || '').toLowerCase().split('shell to').length - 1
+ok('"shell to finished" is written once on the page', shellHeadings === 1, `${shellHeadings} occurrences`)
 ok('css: gsap entrance states guarded', /\.gsap-ready\[data-reveal\]\{opacity:0/.test(flat))
 
 const realErrors = errors.filter((e) => !/Not implemented|WebGL|Error creating WebGL|jsdom/i.test(e))

@@ -1,4 +1,5 @@
 import { gsap, SplitText, revealIn, useGsap } from '../lib/gsap'
+import { LayoutPreloader } from '@/components/ui/layout-preloader'
 import { BUSINESS, IMAGES, METRICS } from '../lib/site'
 
 const AMENITIES = [
@@ -53,7 +54,9 @@ export default function Philosophy() {
         },
       )
     }
-    gsap.to('[data-philosophy-image]', {
+    /* the plate's own img, not the plate — scaling the wrapper would push the
+       grain layer outside the figure's clip */
+    gsap.to('[data-philosophy-plate] img', {
       scale: 1,
       ease: 'none',
       scrollTrigger: { trigger: figure, start: 'top bottom', end: 'bottom top', scrub: true },
@@ -188,19 +191,29 @@ export default function Philosophy() {
           ))}
         </div>
 
-        {/* Row 3 — figure carrying the amenity strip */}
+        {/* Row 3 — figure carrying the amenity strip.
+            The detail shot is no longer a still: it sits inside the film-grain
+            plate the preloader uses, counts up as it scrolls into view and
+            clears under the cursor. Same image, same frame, same alt. */}
         <figure
           data-philosophy-figure
-          className="image-reveal relative mt-10 cursor-none overflow-hidden bg-blush"
+          className="image-reveal relative mt-10 overflow-hidden bg-blush"
         >
-          <img
-            data-philosophy-image
-            src={IMAGES.philosophy}
-            alt="Detail of a finished interior: curved plaster meeting fluted oak, with a honed travertine ledge"
-            loading="lazy"
-            decoding="async"
-            className="h-[320px] w-full scale-[1.08] object-cover sm:h-[400px] lg:h-[460px]"
-          />
+          <div data-philosophy-plate className="h-[320px] w-full sm:h-[400px] lg:h-[460px]">
+            <LayoutPreloader
+              variant="inline"
+              image={IMAGES.philosophy}
+              imageProps={{
+                alt: 'Detail of a finished interior: curved plaster meeting fluted oak, with a honed travertine ledge',
+                className: 'scale-[1.08]',
+              }}
+              label="Limewash, smoked oak and travertine, in one light"
+              sublabel="In situ · Azeet Plaza, Gorakhpur"
+              duration={2600}
+              minimal
+              className="h-full w-full"
+            />
+          </div>
 
           <figcaption className="absolute left-6 top-6 rounded-full border border-white/20 bg-white/10 px-4 py-2 backdrop-blur-md">
             <span className="lbl text-white">Limewash · Smoked oak · Travertine</span>

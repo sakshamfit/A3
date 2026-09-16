@@ -2,20 +2,33 @@ import { gsap, useGsap } from '../lib/gsap'
 import { IMAGES, PROCESS } from '../lib/site'
 
 /**
- * Section 5 — Shell → Finished.
+ * Section 5 — the pinned wipe.
  *
- * A pinned frame: the raw plastered shell (rendered as a blueprint-toned layer
- * of the same photograph) is wiped away by the finished interior as the section
- * is scrolled, driven by a `--p` custom property GSAP scrubs from 0 to 1. The
- * four process steps light up as the wipe passes them.
+ * Two photographs of the *same* room, stacked: the bare cement shell on top of
+ * the finished kitchen. GSAP scrubs a `--p` custom property from 0 to 1 across
+ * the section, the shell's `clip-path` opens with it, and the four process steps
+ * light up as the wipe passes them.
+ *
+ * The shell used to be the finished render pushed through a `.blueprint` CSS
+ * filter, which read as a tinted duplicate rather than a different moment — so
+ * it is a real plate now (`/images/res-obsidian-shell.jpg`, shot to the same
+ * framing: the plinth sits where the island is built, the same window, the same
+ * plants). No filter, no colour trick: the wipe works because the geometry
+ * lines up.
+ *
+ * This section deliberately carries no headline of its own — `src/pages/Process.tsx`
+ * already titles the page "Shell to finished", and repeating it in the section
+ * put the same six words on screen twice.
  */
 export default function Transform() {
   const scope = useGsap<HTMLElement>((el, { reduced }) => {
     const steps = el.querySelectorAll<HTMLElement>('[data-step]')
+    const readout = el.querySelector<HTMLElement>('[data-wipe-pct]')
 
     if (reduced) {
       gsap.set(el, { '--p': 1 })
       gsap.set(steps, { opacity: 1 })
+      if (readout) readout.textContent = '100'
       return
     }
 
@@ -34,43 +47,56 @@ export default function Transform() {
     steps.forEach((step, i) => {
       tl.to(step, { opacity: 1, duration: 0.001 }, (i + 0.35) / steps.length)
     })
+
+    // the meter in the top-right micro label, driven off the same timeline so it
+    // can never disagree with what the wipe is doing
+    const meter = { p: 0 }
+    tl.to(
+      meter,
+      {
+        p: 1,
+        ease: 'none',
+        duration: 1,
+        onUpdate: () => {
+          if (readout) readout.textContent = String(Math.round(meter.p * 100)).padStart(3, '0')
+        },
+      },
+      0,
+    )
   }, [])
 
   return (
     <section ref={scope} id="process" className="relative h-[150vh] bg-bone md:h-[165vh]">
       <div className="sticky top-0 flex h-svh flex-col justify-center overflow-hidden md:h-screen">
         <div className="wrap">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="lbl text-ink/40">Process</p>
-              <h2 className="headline mt-3 max-w-[20ch] text-ink">
-                Shell to <span className="accent">finished</span>
-              </h2>
-            </div>
-            <p className="lede text-ink/60">
-              One apartment, 14 weeks apart. Drag your scroll to pull the finished room across
-              the bare shell.
+          <div className="flex flex-wrap items-baseline justify-between gap-x-6 gap-y-1.5 border-b border-ink/10 pb-2.5">
+            <p className="lbl text-ink/45">
+              Obsidian Loft · Taramandal — kitchen, 14 weeks apart
+            </p>
+            <p className="lbl num text-ink/40">
+              Wiped <span data-wipe-pct>000</span>%
             </p>
           </div>
 
-          <div className="mt-6 grid gap-6 lg:grid-cols-12">
+          <div className="mt-5 grid gap-6 lg:grid-cols-12">
             {/* Wipe frame */}
             <figure className="relative overflow-hidden bg-blush lg:col-span-8">
               {/* finished render underneath */}
               <img
                 src={IMAGES.residenceObsidian}
-                alt="Finished dark modular kitchen after an A3 fit-out"
+                alt="The Obsidian Loft kitchen finished — black stone island, oak open shelving, brass tapware, city beyond the glass"
                 loading="lazy"
                 decoding="async"
                 className="h-[200px] w-full object-cover sm:h-[300px] lg:h-[min(46vh,420px)]"
               />
-              {/* shell layer wiped away by --p — same room, blueprint-toned.
-                  p=0 → shell fully covers the frame, p=1 → shell fully wiped. */}
+              {/* the bare shell, wiped away by --p.
+                  p=0 → the shell covers the frame, p=1 → the shell is gone. */}
               <img
-                src={IMAGES.residenceObsidian}
-                alt=""
-                aria-hidden="true"
-                className="blueprint absolute inset-0 h-full w-full object-cover"
+                src={IMAGES.residenceObsidianShell}
+                alt="The same kitchen before fit-out — cement-plastered shell, open electrical conduits, brass pipe tails and a concrete plinth where the island is built"
+                loading="lazy"
+                decoding="async"
+                className="absolute inset-0 h-full w-full object-cover"
                 style={{ clipPath: 'inset(0 calc(var(--p, 0) * 100%) 0 0)' }}
               />
               {/* wipe handle */}
@@ -116,7 +142,7 @@ export default function Transform() {
           </div>
 
           {/* Progress bar */}
-          <div className="mt-6 h-px w-full bg-ink/10">
+          <div className="mt-5 h-px w-full bg-ink/10">
             <div
               className="h-px bg-ink"
               style={{ width: 'calc(var(--p, 0) * 100%)' }}

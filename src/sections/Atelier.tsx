@@ -32,6 +32,8 @@ function SceneSkeleton() {
  */
 export default function Atelier() {
   const [active, setActive] = useState<number | null>(0)
+  /** the finish whose spec the list spells out — defaults to the first one */
+  const detail = MATERIALS[active ?? 0]
   const [isZoomed, setIsZoomed] = useState(false)
   const [mountScene, setMountScene] = useState(false)
   const hostRef = useRef<HTMLDivElement | null>(null)
@@ -98,9 +100,12 @@ export default function Atelier() {
         </div>
 
         <div className="mt-10 grid gap-7 lg:grid-cols-12">
-          {/* Architectural material showroom & visualizer */}
+          {/* Architectural material showroom & visualizer. Fixed heights (not an
+              aspect box) because the close shot inside needs room for its spec
+              bar on a phone; the plate fits itself with `object-contain`, so a
+              taller frame only adds ink bars, never crops a finish away. */}
           <div ref={hostRef} data-reveal="fade" className="lg:col-span-7">
-            <div className="h-[370px] w-full border border-white/15 sm:h-[420px] lg:h-[470px] shadow-2xl overflow-hidden">
+            <div className="h-[300px] w-full border border-white/15 sm:h-[420px] lg:h-[470px] shadow-2xl overflow-hidden">
               {mountScene ? (
                 <Suspense fallback={<SceneSkeleton />}>
                   <RoomScene
@@ -177,11 +182,20 @@ export default function Atelier() {
               <hr data-rule className="rule" />
             </ul>
 
-            <p className="copy mt-6 text-[12.5px] lg:mt-auto lg:pt-6">
-              The living pavilion above illustrates these four core finishes in natural daylight.
-              Move your cursor across the room to experience the parallax perspective, tap the
-              pins, or inspect the 1:1 macro tactile textures.
-            </p>
+            {/* The specification the zoomed macro used to carry as a card over the
+                texture lives here instead, on the list it belongs to, and swaps as
+                the board is explored. Nothing is written on a photograph now. */}
+            <div data-material-detail className="mt-6 lg:mt-auto lg:pt-6">
+              <hr data-rule className="rule" />
+              <p className="lbl mt-3 text-chalk/40">
+                {detail.name} · {detail.finish} finish
+              </p>
+              <p className="copy mt-2 text-[12.5px] text-chalk/70">{detail.specs}</p>
+              <p className="copy mt-1.5 text-[12px] text-chalk/45">{detail.application}</p>
+              <p className="mt-3 font-mono text-[10px] uppercase tracking-widest text-chalk/30">
+                Tap a dot in the room for the 1:1 macro · Esc returns
+              </p>
+            </div>
           </div>
         </div>
       </div>
