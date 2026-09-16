@@ -382,12 +382,6 @@
     will-change: transform;
   }
 
-  /* Blueprint layer used by the pinned shell → finished wipe */
-  .blueprint {
-    filter: grayscale(1) contrast(1.45) brightness(0.72) sepia(0.35) hue-rotate(178deg)
-      saturate(1.8);
-  }
-
   /* SplitText line masks */
   .split-line-mask,
   [class*='-mask'] {

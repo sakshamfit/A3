@@ -328,7 +328,18 @@ ok('css: selection stone-800 / white', /::selection\{[^}]*background-color:rgb\(
 ok('css: image-reveal clip-path + source curve', /clip-path:\s*inset\(0 0 0 0\)/.test(css) && /cubic-bezier\(0?\.16,\s*1,\s*0?\.3,\s*1\)/.test(css))
 ok('css: gallery grayscale 30% -> colour', /grayscale\(30%\)/.test(css) && /grayscale\(100%\)/.test(css))
 ok('expanding residence media is full colour', !/grayscale/.test(doc.querySelector('[data-expand-media]')?.className || ''))
-ok('css: blueprint filter for shell wipe', /\.blueprint\{filter:/.test(flat))
+// the shell side of the wipe is a real plate now, not the finished render run
+// through a colour filter — and /process may say "Shell to finished" only once
+const transformSrc = readFileSync('./src/sections/Transform.tsx', 'utf8')
+ok('shell wipe uses a real under-construction plate', /residenceObsidianShell/.test(transformSrc) && existsSync('./public/images/res-obsidian-shell.jpg'))
+await navigate('/process')
+const wipeImgs = [...(doc.querySelectorAll('#process figure img') || [])]
+ok('wipe figure stacks both plates', wipeImgs.length === 2 && !!wipeImgs[0].getAttribute('alt') && !!wipeImgs[1].getAttribute('alt'), `${wipeImgs.length} plates, ${wipeImgs.filter((i) => (i.getAttribute('alt') || '').length > 10).length} described`)
+// the filter used to do the "under construction" acting; the class must be gone
+// from both the stylesheet and the figure (it may still be named in a comment)
+ok('no .blueprint filter trick left on the wipe', !/\.blueprint\s*\{/.test(flat) && !doc.querySelector('#process .blueprint'))
+const shellHeadings = (doc.body.textContent || '').toLowerCase().split('shell to').length - 1
+ok('"shell to finished" is written once on the page', shellHeadings === 1, `${shellHeadings} occurrences`)
 ok('css: gsap entrance states guarded', /\.gsap-ready\[data-reveal\]\{opacity:0/.test(flat))
 
 const realErrors = errors.filter((e) => !/Not implemented|WebGL|Error creating WebGL|jsdom/i.test(e))

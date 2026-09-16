@@ -37,6 +37,8 @@ export const IMAGES = {
   hero: '/images/hero-living.webp',
   philosophy: '/images/philosophy-detail.webp',
   residenceObsidian: '/images/res-obsidian.webp',
+  /** the same room, same framing, before fit-out — the wipe's shell layer */
+  residenceObsidianShell: '/images/res-obsidian-shell.jpg',
   residenceGarden: '/images/res-garden.webp',
   residenceTerracotta: '/images/res-terracotta.webp',
   residenceStudio: '/images/res-studio.webp',

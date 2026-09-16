@@ -30,7 +30,7 @@ npm run preview
 | Structure | shadcn conventions — `components.json`, `@/components/ui`, `cn()` — on Vite, so **no `next`** |
 | Icons | `iconify-icon` web component, Solar set registered offline from `@iconify-icons/solar` |
 | First paint | `src/components/ui/layout-preloader.tsx` — film-grain curtain; the grain is an inline `feTurbulence` tile animated by `noise-animation`, so no loader package and no asset |
-| Imagery | 10 generated interiors, committed as WebP (~1.2 MB total) |
+| Imagery | 11 generated interiors, committed as WebP/JPG (~1.4 MB total) |
 
 ## Palette & density
 
@@ -111,7 +111,7 @@ dropped-in `.glb` without pulling the three loaders onto the critical path. Run 
 | 2 | **Philosophy** — three full-width rows: headline beside the narrative · metrics strip · figure with the amenity list riding inside it | the detail shot is an inline `LayoutPreloader` plate (live grain + count hairline, clears on hover); clip-path figure reveal, per-word opacity scrub, counting metrics, rules that draw in |
 | 3 | **Residences** — sticky availability rail with L/R arrows | row entrances, hairline draw, image parallax; `grayscale-[20%]` → colour, `duration-1000` scale |
 | 4 | **Atelier** — material board: the room plate, one dot per finish, no text laid over the photograph | **Three.js**: abstract A3 room lit through one aperture, floating material board, pointer lean, camera dolly on scroll, planes lift when the DOM swatch list is hovered |
-| 5 | **Transform** — shell → finished | pinned sticky frame; a `--p` custom property GSAP scrubs 0 → 1 wipes the blueprint shell off the finished render |
+| 5 | **Transform** — the pinned wipe | a `--p` custom property GSAP scrubs 0 → 1, opening the `clip-path` on a real under-construction plate to reveal the finished kitchen underneath; the four steps light up as the seam passes them |
 | 6 | **Gallery** — 400 px mosaic (tall / wide / standard / standard) | tile un-clip on entry + per-tile parallax, grayscale → colour on hover |
 | 7 | **Reviews** — 4.8 from 174, verbatim Google quotes | scroll-driven horizontal track on desktop, stacked list on mobile |
 | 8 | **Contact** — stone-100, underlined fields | field stagger; submit composes a pre-filled WhatsApp message (no server, nothing stored) |
@@ -220,6 +220,33 @@ taste:
 That spec copy is not gone — `specs` and `application` moved into `[data-material-detail]` at the
 foot of the finish list, where they swap with whatever is active. The harness fails the build if a
 `h-64 w-64` disc returns to the room view or if `RoomScene` renders `currentMaterial.specs` again.
+
+## The pinned wipe — two photographs, one room
+
+`src/sections/Transform.tsx` (on `/process`) used to fake "before" by pushing the finished render
+through a `.blueprint` colour filter — a tinted duplicate, not a different moment. It is two
+photographs now:
+
+| Layer | File | State |
+| --- | --- | --- |
+| underneath | `/images/res-obsidian.webp` | the finished Obsidian Loft kitchen |
+| wiped away by `--p` | `/images/res-obsidian-shell.jpg` | the same room as a bare shell — cement plaster, conduit runs with no fittings, brass pipe tails, drop sheets, a board-formed concrete island plinth with the sink void cast into it |
+
+**Why the plate is worth its bytes:** a wipe only reads as *time passing* if the geometry
+registers. The shell was generated **from** the finished frame (image-to-image, "same camera, same
+framing, unfinished") so the ceiling line, the window mullions, the plant on the sill and the
+counter/plinth run all land where the finished room puts them, and both are 1376×768 — identical
+`object-cover` crop on both sides, so the seam never slides one plate relative to the other. Two
+earlier takes were rejected this way: one framed the room wider (doubled mullions and ceiling line
+across the seam), one matched the island but pitched the camera down (the ceiling vanished). The
+check is cheap and unambiguous — `convert a.png b.png -evaluate-sequence mean` and look for
+doubled straight lines.
+
+The section deliberately has **no headline of its own**: `src/pages/Process.tsx` already titles the
+page *Shell to finished*, and the section repeating it put the same six words on screen twice in one
+viewport. It carries one micro row instead — the room and gap ("Obsidian Loft · Taramandal — kitchen,
+14 weeks apart") plus a `Wiped 000%` meter driven off the same timeline as the wipe, so the number
+can never disagree with what the frame is doing.
 
 ## Scrolling
 
