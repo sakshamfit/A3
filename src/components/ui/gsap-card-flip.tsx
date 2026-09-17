@@ -53,8 +53,8 @@ export function GsapCardFlip({
     const isMobile = typeof window !== "undefined" ? window.innerWidth < 640 : false
     const isTablet = typeof window !== "undefined" ? window.innerWidth < 1024 : false
 
-    // Spacing between cards when spread out
-    const spreadSpacing = isMobile ? 86 : isTablet ? 142 : 185
+    // Spacing between cards when spread out - optimized for screen width so cards do not cut off or cause scroll stutter
+    const spreadSpacing = isMobile ? 54 : isTablet ? 120 : 168
 
     const ctx = gsap.context(() => {
       cards.forEach((card, i) => {
@@ -64,10 +64,9 @@ export function GsapCardFlip({
           // Spread mode: fan out smoothly across horizontal stage
           const spreadOffset = i - (total - 1) / 2 // -2.5, -1.5, -0.5, 0.5, 1.5, 2.5
           const targetX = spreadOffset * spreadSpacing
-          const targetY = Math.abs(spreadOffset) * (isMobile ? 10 : 6)
-          const targetRot = spreadOffset * (isMobile ? 3 : stackRotation)
-          const targetScale = isCurrent ? 1.05 : 0.94
-          const targetOpacity = isCurrent ? 1 : 0.92
+          const targetY = Math.abs(spreadOffset) * (isMobile ? 8 : 6)
+          const targetRot = spreadOffset * (isMobile ? 2.5 : stackRotation)
+          const targetScale = isCurrent ? (isMobile ? 1.02 : 1.05) : (isMobile ? 0.92 : 0.94)
           const targetZ = isCurrent ? 40 : 20 + Math.round(10 - Math.abs(spreadOffset))
 
           gsap.to(card, {
@@ -75,10 +74,10 @@ export function GsapCardFlip({
             y: targetY,
             rotation: targetRot,
             scale: targetScale,
-            opacity: targetOpacity,
             zIndex: targetZ,
-            duration: 0.65,
-            ease: "power3.out",
+            duration: 0.5,
+            ease: "power2.out",
+            force3D: true,
             overwrite: "auto",
           })
         } else {
@@ -89,38 +88,32 @@ export function GsapCardFlip({
           let targetY = 0
           let targetRot = 0
           let targetScale = 1
-          let targetOpacity = 1
 
           if (stackOffset === 0) {
             targetX = 0
             targetY = 0
             targetRot = 0
             targetScale = 1
-            targetOpacity = 1
           } else if (stackOffset === 1) {
             targetX = 8
             targetY = 7
             targetRot = stackRotation * 1.1
             targetScale = 0.96
-            targetOpacity = 0.95
           } else if (stackOffset === 2) {
             targetX = -7
             targetY = 13
             targetRot = -stackRotation * 1.1
             targetScale = 0.92
-            targetOpacity = 0.88
           } else if (stackOffset === 3) {
             targetX = 10
             targetY = 19
             targetRot = stackRotation * 1.6
             targetScale = 0.88
-            targetOpacity = 0.8
           } else {
             targetX = (stackOffset % 2 === 0 ? 8 : -8)
             targetY = 22 + (stackOffset - 3) * 3
             targetRot = (stackOffset % 2 === 0 ? 2 : -2) * stackRotation
             targetScale = 0.85
-            targetOpacity = Math.max(0.45, 0.7 - (stackOffset - 3) * 0.1)
           }
 
           const targetZ = total + 15 - stackOffset
@@ -130,10 +123,10 @@ export function GsapCardFlip({
             y: targetY,
             rotation: targetRot,
             scale: targetScale,
-            opacity: targetOpacity,
             zIndex: targetZ,
-            duration: 0.55,
-            ease: "power3.inOut",
+            duration: 0.45,
+            ease: "power2.out",
+            force3D: true,
             overwrite: "auto",
           })
         }
@@ -255,8 +248,8 @@ export function GsapCardFlip({
                   aria-label={`${item.alt} — ${i + 1} of ${total}`}
                   aria-current={isCurrent ? "true" : undefined}
                   className={cn(
-                    "absolute left-1/2 top-1/2 h-[370px] w-[275px] -translate-x-1/2 -translate-y-1/2 cursor-pointer select-none overflow-hidden border bg-white shadow-[0_22px_55px_rgba(26,26,26,0.16)] sm:h-[420px] sm:w-[320px]",
-                    "transition-[border-color,box-shadow] duration-300"
+                    "absolute left-1/2 top-1/2 h-[340px] w-[240px] -translate-x-1/2 -translate-y-1/2 cursor-pointer select-none overflow-hidden border bg-white shadow-[0_12px_32px_rgba(26,26,26,0.12)] sm:h-[420px] sm:w-[320px] sm:shadow-[0_22px_55px_rgba(26,26,26,0.16)]",
+                    "transition-[border-color] duration-300"
                   )}
                   style={{
                     borderRadius: rounded,
@@ -264,6 +257,8 @@ export function GsapCardFlip({
                       ? "rgba(255,255,255,0.4)"
                       : "rgba(26,26,26,0.08)",
                     transformStyle: "preserve-3d",
+                    willChange: "transform",
+                    backfaceVisibility: "hidden",
                   }}
                 >
                   <div className="relative h-full w-full">

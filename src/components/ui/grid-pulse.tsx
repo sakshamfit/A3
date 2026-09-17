@@ -76,17 +76,38 @@ export function GridPulse({
         return
       }
       isHovered = true
-      const mouseX = e.clientX - rect.left
-      const mouseY = e.clientY - rect.top
+      const pointerX = e.clientX - rect.left
+      const pointerY = e.clientY - rect.top
 
       const step = cellSize + gap
-      const newGx = Math.floor(mouseX / step)
-      const newGy = Math.floor(mouseY / step)
+      const newGx = Math.floor(pointerX / step)
+      const newGy = Math.floor(pointerY / step)
 
       targetGx = newGx
       targetGy = newGy
 
-      // If snake is empty, seed it
+      // If snake is empty, seed it immediately at target
+      if (snake.length === 0) {
+        snake.push({ gx: newGx, gy: newGy, time: performance.now() })
+      }
+    }
+
+    const handlePointerDown = (e: PointerEvent) => {
+      const rect = container.getBoundingClientRect()
+      if (
+        e.clientX < rect.left ||
+        e.clientX > rect.right ||
+        e.clientY < rect.top ||
+        e.clientY > rect.bottom
+      ) return
+      isHovered = true
+      const pointerX = e.clientX - rect.left
+      const pointerY = e.clientY - rect.top
+      const step = cellSize + gap
+      const newGx = Math.floor(pointerX / step)
+      const newGy = Math.floor(pointerY / step)
+      targetGx = newGx
+      targetGy = newGy
       if (snake.length === 0) {
         snake.push({ gx: newGx, gy: newGy, time: performance.now() })
       }
@@ -96,7 +117,49 @@ export function GridPulse({
       isHovered = false
     }
 
+    // Touch event handlers directly on container for instantaneous mobile response
+    const handleTouchMove = (e: TouchEvent) => {
+      if (!e.touches.length) return
+      const touch = e.touches[0]
+      const rect = container.getBoundingClientRect()
+      isHovered = true
+      const pointerX = touch.clientX - rect.left
+      const pointerY = touch.clientY - rect.top
+      const step = cellSize + gap
+      targetGx = Math.floor(pointerX / step)
+      targetGy = Math.floor(pointerY / step)
+      if (snake.length === 0) {
+        snake.push({ gx: targetGx, gy: targetGy, time: performance.now() })
+      }
+    }
+
+    const handleTouchStart = (e: TouchEvent) => {
+      if (!e.touches.length) return
+      const touch = e.touches[0]
+      const rect = container.getBoundingClientRect()
+      isHovered = true
+      const pointerX = touch.clientX - rect.left
+      const pointerY = touch.clientY - rect.top
+      const step = cellSize + gap
+      targetGx = Math.floor(pointerX / step)
+      targetGy = Math.floor(pointerY / step)
+      if (snake.length === 0) {
+        snake.push({ gx: targetGx, gy: targetGy, time: performance.now() })
+      }
+    }
+
+    const handleTouchEnd = () => {
+      // Let snake gracefully slither away
+      isHovered = false
+    }
+
+    // Add window touch listeners with passive: true so user can scroll while the yellow glow tracks their finger
     window.addEventListener("pointermove", handlePointerMove, { passive: true })
+    window.addEventListener("pointerdown", handlePointerDown, { passive: true })
+    window.addEventListener("touchmove", handleTouchMove, { passive: true })
+    window.addEventListener("touchstart", handleTouchStart, { passive: true })
+    window.addEventListener("touchend", handleTouchEnd, { passive: true })
+    window.addEventListener("touchcancel", handleTouchEnd, { passive: true })
     container.addEventListener("pointerleave", handlePointerLeave)
 
     let lastStepTime = performance.now()
@@ -214,6 +277,11 @@ export function GridPulse({
     return () => {
       window.removeEventListener("resize", handleResize)
       window.removeEventListener("pointermove", handlePointerMove)
+      window.removeEventListener("pointerdown", handlePointerDown)
+      window.removeEventListener("touchmove", handleTouchMove)
+      window.removeEventListener("touchstart", handleTouchStart)
+      window.removeEventListener("touchend", handleTouchEnd)
+      window.removeEventListener("touchcancel", handleTouchEnd)
       container.removeEventListener("pointerleave", handlePointerLeave)
       cancelAnimationFrame(animationId)
     }

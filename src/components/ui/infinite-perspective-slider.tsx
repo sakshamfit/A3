@@ -134,12 +134,14 @@ export function InfinitePerspectiveSlider({
   useEffect(() => {
     const updateDimensions = () => {
       const width = typeof window !== "undefined" ? window.innerWidth : 1200
-      if (width < 640) {
-        cardWidthRef.current = 280
+      if (width < 480) {
+        cardWidthRef.current = 240
+      } else if (width < 640) {
+        cardWidthRef.current = 270
       } else if (width < 1024) {
-        cardWidthRef.current = 330
+        cardWidthRef.current = 320
       } else {
-        cardWidthRef.current = 390
+        cardWidthRef.current = 380
       }
     }
     updateDimensions()
@@ -336,7 +338,7 @@ export function InfinitePerspectiveSlider({
       {/* 3D Perspective Stage */}
       <div
         ref={containerRef}
-        className="relative h-[430px] w-full cursor-grab overflow-hidden active:cursor-grabbing sm:h-[480px] lg:h-[510px]"
+        className="relative h-[410px] w-full cursor-grab overflow-hidden active:cursor-grabbing sm:h-[480px] lg:h-[510px] touch-pan-y"
         style={{
           perspective: `${perspective}px`,
           perspectiveOrigin: "center 45%",
@@ -348,6 +350,7 @@ export function InfinitePerspectiveSlider({
         onTouchStart={(e) => handlePointerDown(e.touches[0].clientX)}
         onTouchMove={(e) => handlePointerMove(e.touches[0].clientX)}
         onTouchEnd={handlePointerUp}
+        onTouchCancel={handlePointerUp}
       >
         <div
           ref={trackRef}
@@ -366,7 +369,7 @@ export function InfinitePerspectiveSlider({
                 }}
                 onMouseEnter={() => setHoveredCardId(item.keyId)}
                 onMouseLeave={() => setHoveredCardId(null)}
-                className="group absolute top-4 h-[380px] w-[280px] origin-center sm:h-[420px] sm:w-[330px] lg:h-[450px] lg:w-[390px]"
+                className="group absolute top-3 h-[360px] w-[240px] origin-center sm:top-4 sm:h-[420px] sm:w-[320px] lg:h-[450px] lg:w-[380px]"
                 style={{
                   transformStyle: "preserve-3d",
                   willChange: "transform, filter",
