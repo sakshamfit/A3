@@ -1,20 +1,100 @@
 import Hero from "@/sections/Hero"
-import Marquee from "@/components/Marquee"
 import Philosophy from "@/sections/Philosophy"
 import Residences from "@/sections/Residences"
 import { Link } from "react-router-dom"
-import { BUSINESS } from "@/lib/site"
+import { BUSINESS, IMAGES } from "@/lib/site"
+import { InfinitePerspectiveSlider, SliderItem } from "@/components/ui/infinite-perspective-slider"
+
+const PERSPECTIVE_SLIDES: SliderItem[] = [
+  {
+    id: "betiahata-library",
+    title: "Arched Oak Library",
+    subtitle: "Betiahata Private Estate",
+    category: "Joinery & Library",
+    location: "Betiahata · Gorakhpur",
+    year: "2024",
+    specs: "Full-height smoked oak bookstacks with honed travertine reveals",
+    image: IMAGES.archedLibrary,
+    quote: "We absolutely loved the service from A3 interior designer & builders.",
+    href: "/works",
+  },
+  {
+    id: "ivory-culinary",
+    title: "Monolithic Ivory Kitchen",
+    subtitle: "Civil Lines Duplex",
+    category: "Modular Kitchen",
+    location: "Civil Lines · Gorakhpur",
+    year: "2024",
+    specs: "Brushed black granite plinth & fluted cabinetry with soft servo-drive",
+    image: IMAGES.ivoryKitchen,
+    href: "/works",
+  },
+  {
+    id: "obsidian-penthouse",
+    title: "Obsidian Horizon Lounge",
+    subtitle: "Taramandal Tower",
+    category: "Living Suite",
+    location: "Taramandal · Gorakhpur",
+    year: "2024",
+    specs: "Slatted acoustic smoked oak panelling with concealed pivot entrance",
+    image: IMAGES.obsidianLuxe,
+    href: "/works",
+  },
+  {
+    id: "brass-sanctuary",
+    title: "Travertine Master Bath",
+    subtitle: "Park Road Residence",
+    category: "Sanctuary",
+    location: "Park Road · Gorakhpur",
+    year: "2023",
+    specs: "Unfilled Roman travertine monolithic basin and unlacquered brass fittings",
+    image: IMAGES.brassBath,
+    href: "/works",
+  },
+  {
+    id: "sage-suite",
+    title: "Mineral Sage Bedroom",
+    subtitle: "Medical College Road",
+    category: "Master Suite",
+    location: "Medical Road · Gorakhpur",
+    year: "2023",
+    specs: "Hand-trowelled limewash walls with bespoke built-in oak floating headboard",
+    image: IMAGES.sageBedroom,
+    href: "/works",
+  },
+  {
+    id: "courtyard-atrium",
+    title: "Sunlit Courtyard Atrium",
+    subtitle: "Rustampur Villa",
+    category: "Architecture & Light",
+    location: "Rustampur · Gorakhpur",
+    year: "2023",
+    specs: "Architectural clerestory glazing, fluted columns and living planter ledges",
+    image: IMAGES.courtyard,
+    href: "/works",
+  },
+  {
+    id: "oak-pavilion",
+    title: "Smoked Oak Dining Pavilion",
+    subtitle: "Golghar Executive Suite",
+    category: "Dining Room",
+    location: "Golghar · Gorakhpur",
+    year: "2024",
+    specs: "Cantilevered solid European oak banquet table with sculptural plaster ceiling",
+    image: IMAGES.oakDining,
+    href: "/works",
+  },
+]
 
 /**
  * Home — clean landing, not overloaded.
- * Only one pinned section (Residences scroll-expansion).
- * StackSpread / Flip / Transform are on their own pages.
+ * Residences scroll-expansion, followed by works teaser and
+ * Hyperiux Infinite Perspective Slider.
  */
 export default function Home() {
   return (
     <>
       <Hero />
-      <Marquee />
       <Philosophy />
       <Residences />
 
@@ -45,52 +125,27 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Social proof teaser — static, not pinned, to avoid second pinned on Home */}
-      <section className="band bg-bone">
-        <div className="wrap">
-          <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-            <div>
-              <p className="lbl text-ink/40">Reviews</p>
-              <h2 className="headline mt-3 text-ink">
-                {BUSINESS.rating} from <span className="accent">{BUSINESS.reviewCount}</span> reviews
-              </h2>
+      {/* Infinite Perspective Slider (Hyperiux Vault component) replacing previous static reviews */}
+      <section id="perspective-slider" className="border-t border-ink/10 bg-bone">
+        <InfinitePerspectiveSlider
+          items={PERSPECTIVE_SLIDES}
+          badge="3D Spatial Archive"
+          heading={
+            <>
+              Infinite <span className="accent">Perspective</span> Slider
+            </>
+          }
+          subheading={
+            <div className="flex flex-col gap-1">
+              <p>
+                Drag, wheel, or swipe horizontally to inspect our bespoke interior commissions in dynamic 3D tilt perspective.
+              </p>
+              <p className="font-mono text-[11px] uppercase tracking-wider text-ink/50 mt-1">
+                {BUSINESS.rating} Rating · {BUSINESS.reviewCount} Verified Commissions
+              </p>
             </div>
-            <Link to="/studio#reviews" className="tlink hidden md:inline-flex">
-              Read all reviews
-              <span className="ar" aria-hidden="true">→</span>
-            </Link>
-          </div>
-
-          <div className="mt-8 grid gap-4 sm:grid-cols-3">
-            {[
-              "We absolutely loved the service from A3 interior designer & builders.",
-              "Good looking for my design in my home very nice work thank you for company",
-              "He provides interior designing service in gorakhpur, and nearby city.",
-            ].map((q, i) => (
-              <div key={i} className="border border-ink/10 bg-white p-6">
-                <div className="flex items-center gap-1 text-ink/60">
-                  {[0, 1, 2, 3, 4].map((s) => (
-                    <iconify-icon key={s} icon="solar:star-bold" width="12" height="12" />
-                  ))}
-                </div>
-                <p className="mt-4 font-display text-[15px] font-medium leading-[1.4] text-ink">
-                  “{q}”
-                </p>
-                <p className="lbl mt-4 text-ink/40">Google review · {String(i + 1).padStart(2, "0")}</p>
-              </div>
-            ))}
-          </div>
-
-          <div className="mt-8 flex flex-col items-start gap-4 border-t border-ink/10 pt-6 sm:flex-row sm:items-center sm:justify-between">
-            <p className="copy text-[13px] text-ink/55">
-              Full pinned Reviews track lives on the Process page — Home stays light.
-            </p>
-            <Link to="/process" className="btn">
-              See how we build
-              <span className="ar" aria-hidden="true">→</span>
-            </Link>
-          </div>
-        </div>
+          }
+        />
       </section>
 
       {/* Contact teaser */}

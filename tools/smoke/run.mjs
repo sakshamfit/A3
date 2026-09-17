@@ -108,7 +108,7 @@ ok('Home: #top present', !!doc.getElementById('top'))
 ok('Home: #philosophy present', !!doc.getElementById('philosophy'))
 ok('Home: #projects present', !!doc.getElementById('projects'))
 ok('Home: hero headline intact', !!doc.querySelector('[data-hero-heading]') && /Interiors/.test(doc.querySelector('[data-hero-heading]')?.textContent || ''))
-ok('Home: marquee present', !!doc.querySelector('[data-ticker]'))
+ok('Home: clean hero present', !doc.querySelector('[data-hero-rail]'))
 
 /* ------------------------------------------------------------------- motion — Home */
 ok('gsap-ready class applied', doc.documentElement.classList.contains('gsap-ready'))
@@ -116,7 +116,7 @@ const heroHeading = doc.querySelector('[data-hero-heading]')
 const headingMasks = heroHeading ? heroHeading.querySelectorAll('[class*="-mask"]').length : 0
 ok('hero headline not left hidden', headingMasks > 0 || opacityOf(heroHeading) > 0.9, `${headingMasks} masks, opacity ${opacityOf(heroHeading)}`)
 const ticker = doc.querySelector('[data-ticker]')
-ok('marquee transformed by gsap', !!ticker && ticker.style.transform !== '', ticker?.style.transform || 'none')
+ok('clean hero without ticker', !ticker || ticker.style.transform !== '', ticker?.style.transform || 'clean')
 
 /* ------------------------------------------------ NOTHING STRANDED INVISIBLE — Home */
 let revealNodes = [...doc.querySelectorAll('[data-reveal], [data-field]')]

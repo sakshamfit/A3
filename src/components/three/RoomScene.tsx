@@ -236,13 +236,13 @@ export default function RoomScene({
     procedural.add(plinth)
 
     const oakPanel = new THREE.Mesh(new THREE.BoxGeometry(0.18, 3.8, 1.8), mat(0x9a6b3f, 0.7, 0.08))
-    oakPanel.position.set(-2.2, 1.9, 0.4)
+    oakPanel.position.set(2.2, 1.9, 0.4)
     oakPanel.castShadow = true
     oakPanel.receiveShadow = true
     procedural.add(oakPanel)
 
     const blackStonePillar = new THREE.Mesh(new THREE.BoxGeometry(0.8, 2.4, 0.8), mat(0x22201d, 0.85, 0.1))
-    blackStonePillar.position.set(2.4, 1.2, 0.2)
+    blackStonePillar.position.set(-2.2, 1.2, 0.2)
     blackStonePillar.castShadow = true
     blackStonePillar.receiveShadow = true
     procedural.add(blackStonePillar)

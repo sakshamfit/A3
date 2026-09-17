@@ -1,21 +1,6 @@
 import { gsap, SplitText, useGsap } from '../lib/gsap'
 import { BUSINESS, IMAGES } from '../lib/site'
 
-const HERO_FACTS = [
-  { label: 'Developers', value: 'Azeet Plaza, Commercial Road' },
-  { label: 'Locality', value: 'Taramandal, Gorakhpur 273001' },
-  { label: 'Hours', value: 'Daily · 10 am – 10 pm' },
-]
-
-/**
- * Section 1 — Hero.
- *
- * Scroll choreography (GSAP + ScrollTrigger):
- *   · an entrance timeline lifts the headline out of line masks and settles the
- *     media from scale 1.18
- *   · on scroll the copy drifts up and fades while the image parallaxes and
- *     darkens, so the hero dissolves into the next band
- */
 export default function Hero() {
   const scope = useGsap<HTMLElement>((el, { reduced }) => {
     const heading = el.querySelector<HTMLElement>('[data-hero-heading]')
@@ -51,12 +36,6 @@ export default function Hero() {
     })
     gsap.to(overlay, {
       opacity: 0.75,
-      ease: 'none',
-      scrollTrigger: { trigger: el, start: 'top top', end: 'bottom top', scrub: true },
-    })
-    gsap.to('[data-hero-rail]', {
-      y: 40,
-      opacity: 0,
       ease: 'none',
       scrollTrigger: { trigger: el, start: 'top top', end: 'bottom top', scrub: true },
     })
@@ -140,31 +119,28 @@ export default function Hero() {
 
       <div className="relative z-10 flex flex-1 flex-col justify-end">
         <div className="wrap pt-20 md:pt-24">
-          <div data-reveal="fade" className="flex flex-wrap items-center gap-x-6 gap-y-3 text-chalk/70">
+          <div data-reveal="fade" className="flex items-center gap-3 text-chalk/70">
             <span className="lbl flex items-center gap-2">
-              <iconify-icon icon="solar:star-bold" width="12" height="12" class="text-chalk/70" />
+              <iconify-icon icon="solar:star-bold" width="12" height="12" class="text-amber-300" />
               {BUSINESS.rating} · {BUSINESS.reviewCount} Google reviews
             </span>
-            <span className="hidden h-3 w-px bg-chalk/25 sm:block" />
-            <span className="lbl">Interior design &amp; build</span>
-            <span className="hidden h-3 w-px bg-chalk/25 sm:block" />
+            <span className="h-3 w-px bg-chalk/25" />
             <span className="lbl">{BUSINESS.locality}</span>
           </div>
 
-          <h1 data-hero-heading data-reveal="mask" className="display mt-5 max-w-[18ch] text-bone">
+          <h1 data-hero-heading data-reveal="mask" className="display mt-4 max-w-[17ch] text-bone">
             Interiors <span className="accent">sculpted</span> around how you live
           </h1>
-          <p className="mt-4 max-w-[46ch] font-serif text-[clamp(15px,1.4vw,20px)] italic leading-snug text-chalk/70">
+          <p className="mt-3 max-w-[46ch] font-serif text-[clamp(15px,1.3vw,18px)] italic text-chalk/70">
             {BUSINESS.name}
           </p>
         </div>
 
-        <div data-hero-copy className="wrap mt-8 flex flex-col gap-6 pb-8 sm:flex-row sm:items-end sm:justify-between">
-          <p data-reveal className="lede text-chalk/70">
-            {BUSINESS.description} Designed, drawn and built by our team of developers — for homes
-            and businesses across Gorakhpur and nearby Uttar Pradesh.
+        <div data-hero-copy className="wrap mt-6 flex flex-col gap-5 pb-12 sm:flex-row sm:items-center sm:justify-between">
+          <p data-reveal className="max-w-[44ch] text-[13.5px] leading-relaxed text-chalk/65">
+            Bespoke architecture, modular joinery and turnkey construction.
           </p>
-          <div data-reveal className="flex flex-wrap items-center gap-3">
+          <div data-reveal className="flex items-center gap-3">
             <a
               href={BUSINESS.whatsapp}
               target="_blank"
@@ -177,24 +153,7 @@ export default function Hero() {
               </span>
             </a>
             <a href="/works" className="btn btn--ghost on-ink">
-              View the collection
-            </a>
-          </div>
-        </div>
-      </div>
-
-      {/* Hero rail */}
-      <div data-hero-rail className="relative z-10 border-t border-white/20">
-        <div className="wrap grid grid-cols-2 gap-5 py-4 md:grid-cols-4">
-          {HERO_FACTS.map((fact) => (
-            <div key={fact.label}>
-              <p className="lbl text-chalk/40">{fact.label}</p>
-              <p className="copy mt-2 text-[13px] text-chalk/75">{fact.value}</p>
-            </div>
-          ))}
-          <div className="flex items-center justify-between gap-4 md:justify-end">
-            <a href={BUSINESS.phoneHref} className="lbl u num text-chalk/80">
-              {BUSINESS.phoneDisplay}
+              View works
             </a>
           </div>
         </div>
